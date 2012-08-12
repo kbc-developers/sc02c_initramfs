@@ -1,5 +1,10 @@
 #!/sbin/busybox sh
 
+#set feature_aosp -> samsung
+mount -t proc proc /proc
+echo 0 > /proc/sys/kernel/feature_aosp
+umount /proc
+
 # check bootanimation
 if [ -f $2/local/bootanimation.zip ] || [ -f $1/media/bootanimation.zip ]; then
   BOOTANI_UID="root"
