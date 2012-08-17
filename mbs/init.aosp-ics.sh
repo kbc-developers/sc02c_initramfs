@@ -1,6 +1,6 @@
 #!/sbin/busybox sh
 
-#set feature_aosp
+#set feature_aosp -> aosp
 mount -t proc proc /proc
 echo 1 > /proc/sys/kernel/feature_aosp
 umount /proc
