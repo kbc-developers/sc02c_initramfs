@@ -3,10 +3,7 @@
 #set config
 BUILD_TARGET=$1
 
-MBS_LOG_1=/xdata/mbs.old1.log
-MBS_LOG_2=/xdata/mbs.old2.log
-
-LOOP_CNT="0 1 2 3 4 5 6 7"
+export LOOP_CNT="0 1 2 3 4 5 6 7"
 export RET=""
 
 #note)script process is "main process" is 1st
@@ -57,17 +54,17 @@ func_mbs_init()
 #------------------------------------------------------
 func_mbs_foce_pramary()
 {
-	export ROM_ID=0
-	export ROM_DATA_PART_0=$DEV_BLOCK_DATA
+	export rom_id=0
+	export rom_data_part_0=$DEV_BLOCK_DATA
 	export ROM_DATA_IMG_0=""
 	#wraning last "/" is not need
 	export ROM_DATA_PATH_0=/mbs/mnt/rom0/data_dev$1
 
-	export ROM_SYS_PART=$DEV_BLOCK_FACTORYFS
-	export ROM_SYS_IMG=""
+	export rom_sys_part=$DEV_BLOCK_FACTORYFS
+	export rom_sys_img=""
 	#wraning last "/" is not need
-	#export ROM_SYS_PATH=/mbs/mnt/rom0/sys_dev
-	export ROM_SYS_PATH="/system"
+	#export rom_sys_path=/mbs/mnt/rom0/sys_dev
+	export rom_sys_path="/system"
 }
 
 
@@ -179,15 +176,15 @@ func_get_mbs_info()
 	# get boot rom number
 	ret=`grep mbs\.boot\.rom $MBS_CONF | cut -d'=' -f2`
 	if [ -e "$ret" ]; then
-	  ROM_ID=0
+	  rom_id=0
 	else
-	  ROM_ID=$ret
+	  rom_id=$ret
 	fi
-	echo "ROM_ID : $ROM_ID" >> $MBS_LOG
+	echo "rom_id : $rom_id" >> $MBS_LOG
 
 	# check kernel
-	KERNEL_PART=`grep mbs\.rom$ROM_ID\.kernel\.part $MBS_CONF | cut -d'=' -f2`
-	KERNEL_IMG=`grep mbs\.rom$ROM_ID\.kernel\.img $MBS_CONF | cut -d'=' -f2`
+	KERNEL_PART=`grep mbs\.rom$rom_id\.kernel\.part $MBS_CONF | cut -d'=' -f2`
+	KERNEL_IMG=`grep mbs\.rom$rom_id\.kernel\.img $MBS_CONF | cut -d'=' -f2`
 	if [ ! -z $KERNEL_PART ];then
 		func_check_part $KERNEL_PART $KERNEL_IMG
 		sh /mbs/init.kernel.sh $KERNEL_PART $KERNEL_IMG
@@ -197,32 +194,32 @@ func_get_mbs_info()
 	for i in $LOOP_CNT; do
 		echo "for:$i" >> $MBS_LOG
 		# romX setting
-		ROM_DATA_PART=`grep mbs\.rom$i\.data\.part $MBS_CONF | cut -d'=' -f2`
+		rom_data_part=`grep mbs\.rom$i\.data\.part $MBS_CONF | cut -d'=' -f2`
 		ROM_DATA_IMG=`grep mbs\.rom$i\.data\.img $MBS_CONF | cut -d'=' -f2`
 		ROM_DATA_PATH=`grep mbs\.rom$i\.data\.path $MBS_CONF | cut -d'=' -f2`
 
-		if [ ! -z "$ROM_DATA_PART" ]; then
-			func_check_part $ROM_DATA_PART $ROM_DATA_IMG
+		if [ ! -z "$rom_data_part" ]; then
+			func_check_part $rom_data_part $ROM_DATA_IMG
 
 			mnt_base=/mbs/mnt/rom${i}
 			mnt_dir=$mnt_base/data_dev
 
 			if [ ! -z "$ROM_DATA_IMG" ]; then
-				func_mbs_create_loop_dev $mnt_base $ROM_DATA_PART $ROM_DATA_IMG data_img data_loop 20${i}
-				ROM_DATA_PART=$RET
-				if [ -z "$ROM_DATA_PART" ]; then
+				func_mbs_create_loop_dev $mnt_base $rom_data_part $ROM_DATA_IMG data_img data_loop 20${i}
+				rom_data_part=$RET
+				if [ -z "$rom_data_part" ]; then
 					echo rom${i} image is not exist >> $MBS_LOG
 				fi
 			fi
 			ROM_DATA_PATH=$mnt_dir$ROM_DATA_PATH
 			ROM_DATA_PATH=`echo $ROM_DATA_PATH | sed -e "s/\/$//g"`
 
-			eval export ROM_DATA_PART_$i=$ROM_DATA_PART
+			eval export rom_data_part_$i=$rom_data_part
 			eval export ROM_DATA_IMG_$i=$ROM_DATA_IMG
 			eval export ROM_DATA_PATH_$i=$ROM_DATA_PATH
 
 			#for Debug
-			eval echo mbs.rom${i}.data.part=$"ROM_DATA_PART_"$i >> $MBS_LOG
+			eval echo mbs.rom${i}.data.part=$"rom_data_part_"$i >> $MBS_LOG
 			eval echo mbs.rom${i}.data.img=$"ROM_DATA_IMG_"$i >> $MBS_LOG
 			eval echo mbs.rom${i}.data.path=$"ROM_DATA_PATH_"$i >> $MBS_LOG
 		fi
@@ -234,44 +231,40 @@ func_get_mbs_info()
 	# set system
 	#----------------------------
 	#check data valid
-	eval ROM_DATA_PART=$"ROM_DATA_PART_"$ROM_ID
-	if [ -z "$ROM_DATA_PART" ]; then
-		echo rom${ROM_ID} data is invalid >> $MBS_LOG
-		#ROM_ID=0
+	eval rom_data_part=$"rom_data_part_"$rom_id
+	if [ -z "$rom_data_part" ]; then
+		echo rom${rom_id} data is invalid >> $MBS_LOG
+		#rom_id=0
 
-		func_error "rom${ROM_ID} data is invalid"
+		func_error "rom${rom_id} data is invalid"
 	fi
 
-	export ROM_SYS_PART=`grep mbs\.rom$ROM_ID\.system\.part $MBS_CONF | cut -d'=' -f2`
-	export ROM_SYS_IMG=`grep mbs\.rom$ROM_ID\.system\.img $MBS_CONF | cut -d'=' -f2`
-	#export ROM_SYS_PATH=`grep mbs\.rom$ROM_ID\.system\.path $MBS_CONF | cut -d'=' -f2`
-	export ROM_SYS_PATH="/system"
+	export rom_sys_part=`grep mbs\.rom$rom_id\.system\.part $MBS_CONF | cut -d'=' -f2`
+	export rom_sys_img=`grep mbs\.rom$rom_id\.system\.img $MBS_CONF | cut -d'=' -f2`
+	#export rom_sys_path=`grep mbs\.rom$rom_id\.system\.path $MBS_CONF | cut -d'=' -f2`
+	export rom_sys_path="/system"
 
 	
-	func_check_part $ROM_SYS_PART $ROM_SYS_IMG
+	func_check_part $rom_sys_part $rom_sys_img
 	
-	mnt_base=/mbs/mnt/rom${ROM_ID}
+	mnt_base=/mbs/mnt/rom${rom_id}
 	mnt_dir=$mnt_base/sys_dev
-	if [ ! -z "$ROM_SYS_IMG" ]; then
-		echo ROM_SYS_IMG :$ROM_SYS_IMG >> $MBS_LOG	
+	if [ ! -z "$rom_sys_img" ]; then
+		echo rom_sys_img :$rom_sys_img >> $MBS_LOG	
 
-		func_mbs_create_loop_dev $mnt_base $ROM_SYS_PART $ROM_SYS_IMG sys_img sys_loop 10${ROM_ID}
-		ROM_SYS_PART=$RET
+		func_mbs_create_loop_dev $mnt_base $rom_sys_part $rom_sys_img sys_img sys_loop 10${rom_id}
+		rom_sys_part=$RET
 	fi
 
-	if [ -z "$ROM_SYS_PART" ]; then
-		echo rom${ROM_ID} sys is invalid >> $MBS_LOG
+	if [ -z "$rom_sys_part" ]; then
+		echo rom${rom_id} sys is invalid >> $MBS_LOG
 		#func_mbs_foce_pramary  "/data0"
-		func_error "rom${ROM_ID} sys is invalid"
-	#else
-	#	ROM_SYS_PATH=/mbs_sys$ROM_SYS_PATH
-	#	ROM_SYS_PATH=$mnt_dir$ROM_SYS_PATH
-	#	ROM_SYS_PATH=`echo $ROM_SYS_PATH | sed -e "s/\/$//g"`
+		func_error "rom${rom_id} sys is invalid"
 	fi		
 	#for Debug
-	echo ROM_SYS_PART=$ROM_SYS_PART >> $MBS_LOG
-	echo ROM_SYS_IMG=$ROM_SYS_IMG >> $MBS_LOG
-	echo ROM_SYS_PATH=$ROM_SYS_PATH >> $MBS_LOG
+	echo rom_sys_part=$rom_sys_part >> $MBS_LOG
+	echo rom_sys_img=$rom_sys_img >> $MBS_LOG
+	echo rom_sys_path=$rom_sys_path >> $MBS_LOG
 
 }
 
@@ -281,46 +274,52 @@ func_get_mbs_info()
 #------------------------------------------------------
 func_vender_init()
 {
-	mnt_base=/mbs/mnt/rom${ROM_ID}
+	mnt_base=/mbs/mnt/rom${rom_id}
 	mnt_dir=$mnt_base/sys_dev
 	mnt_data=$mnt_base/data_dev
 	mnt_system=/mbs/mnt/system
 
-	eval export BOOT_ROM_DATA_PATH=$"ROM_DATA_PATH_"${ROM_ID}
-	eval ROM_DATA_PART=$"ROM_DATA_PART_"${ROM_ID}
+	eval export boot_rom_data_path=$"ROM_DATA_PATH_"${rom_id}
+	eval rom_data_part=$"rom_data_part_"${rom_id}
 
-	mount -t ext4 $ROM_SYS_PART $mnt_system || func_error "$ROM_SYS_PART is invalid part"
-	mount -t ext4 $ROM_DATA_PART $mnt_data || func_error "$ROM_DATA_PART is invalid part"
+	mount -t ext4 $rom_sys_part $mnt_system || func_error "$rom_sys_part is invalid part"
+	mount -t ext4 $rom_data_part $mnt_data || func_error "$rom_data_part is invalid part"
 	#temporary 
 	#make "data" dir is need to mount data patation.
 	#echo mnt_data=$mnt_data >> $MBS_LOG
-	#echo BOOT_ROM_DATA_PATH=$BOOT_ROM_DATA_PATH >> $MBS_LOG
-	mkdir -p $BOOT_ROM_DATA_PATH
-	chmod 771 $BOOT_ROM_DATA_PATH
-	chown system.system $BOOT_ROM_DATA_PATH
+	#echo boot_rom_data_path=$boot_rom_data_path >> $MBS_LOG
+	mkdir -p $boot_rom_data_path
+	chmod 771 $boot_rom_data_path
+	chown system.system $boot_rom_data_path
 
 	# android version code 9 or 10 is gingerbread, 14 or 15 is icecreamsandwitch
-	#SDK_VER=`grep ro\.build\.version\.sdk $mnt_system/build.prop | cut -d'=' -f2`
-	#if [ "$SDK_VER" = '14' -o "$SDK_VER" = '15' ]; then
-	#	ANDROID_VER=ics
-	#else
-	#	ANDROID_VER=gb
-	#fi
-
-	#sh /mbs/init.common.sh $ANDROID_VER
-
+	# or 16 is jeally beans
 	if [ -f $mnt_system/framework/twframework.jar ]; then
-		ROM_VENDOR=samsung
-		sh /mbs/init.samsung.sh $mnt_system $BOOT_ROM_DATA_PATH
+		if [ -f $mnt_system/framework/framework-miui.jar ]; then
+			rom_vender=miui
+		    sh /mbs/init.miui.sh $mnt_system $boot_rom_data_path
+		else
+			rom_vender=samsung
+		    sh /mbs/init.samsung.sh $mnt_system $boot_rom_data_path
+		fi
 	else
-		ROM_VENDOR=aosp
-		sh /mbs/init.aosp.sh $mnt_system $BOOT_ROM_DATA_PATH
+		SDK_VER=`grep ro\.build\.version\.sdk $mnt_system/build.prop | cut -d'=' -f2`
+		if [ "$SDK_VER" = '16' ]; then
+			rom_vender=aosp-jb
+		    sh /mbs/init.aosp-jb.sh $mnt_system $boot_rom_data_path
+		else
+			rom_vender=aosp-ics
+		    sh /mbs/init.aosp-ics.sh $mnt_system $boot_rom_data_path
+		fi
 	fi
-	echo ROM_VENDOR=$ROM_VENDOR >> $MBS_LOG
+
+
+	sh /mbs/init.$rom_vender.sh $mnt_system $boot_rom_data_path
+	echo rom_vender=$rom_vender >> $MBS_LOG
 	cp /mbs/init.rc.temp /xdata/init.rc.temp
 
 	# Set TweakGS2 properties
-	sh /mbs/init.tgs2.sh $BOOT_ROM_DATA_PATH
+	sh /mbs/init.tgs2.sh $boot_rom_data_path
 
 	umount $mnt_system
 	umount $mnt_data
@@ -328,7 +327,7 @@ func_vender_init()
 
 #------------------------------------------------------
 #make init.rc 
-#    $1:ROM_ID
+#    $1:rom_id
 #    $2:LOOP_CNT
 #------------------------------------------------------
 func_make_init_rc()
@@ -378,7 +377,7 @@ if [ "$BUILD_TARGET" = '2' ]; then
 	fi
 	#put current boot rom nuber info
 	mkdir /mbs/stat
-	echo $ROM_ID > /mbs/stat/bootrom
+	echo $rom_id > /mbs/stat/bootrom
 
 else
 	#/system is synbolic link when multi boot.
@@ -387,7 +386,7 @@ else
 fi
 
 func_vender_init
-func_make_init_rc $ROM_ID $LOOP_CNT
+func_make_init_rc $rom_id $LOOP_CNT
 
 exit 0
 ##

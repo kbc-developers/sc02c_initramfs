@@ -35,7 +35,7 @@ on early-init
 
 on fs
 # mount ext4 partitions
-    mount ext4 /dev/block/mmcblk0p9 /system noatime wait ro
+    mount ext4 @SYSTEM_DEV /system noatime wait ro
 
 # override kernel modules
     mount tmpfs tmpfs /system/lib/modules
@@ -47,8 +47,8 @@ on fs
     symlink /lib/modules/scsi_wait_scan.ko /system/lib/modules/scsi_wait_scan.ko
 
     mount ext4 /dev/block/mmcblk0p7 /cache nosuid nodev noatime wait
-    mount ext4 /dev/block/mmcblk0p10 /data nosuid nodev noatime wait noauto_da_alloc
-    mount ext4 /dev/block/mmcblk0p12 /preload nosuid nodev noatime wait
+    mount ext4 @DATA_DEV /data nosuid nodev noatime wait noauto_da_alloc
+    #mount ext4 /dev/block/mmcblk0p12 /preload nosuid nodev noatime wait
     
     mount ext4 /dev/block/mmcblk0p1 /efs nosuid nodev noatime wait
     mkdir /efs/bluetooth

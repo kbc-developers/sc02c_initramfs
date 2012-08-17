@@ -70,29 +70,29 @@ if [ "$1" = '2' ]; then
 
     ret=`grep mbs\.boot\.rom $MBS_CONF | cut -d'=' -f2`
     if [ -z "$ret" ]; then
-        ROM_ID=0
+        rom_id=0
     else
-        ROM_ID=$ret
+        rom_id=$ret
     fi
 
-    ROM_SYSTEM_PART=`grep mbs\.rom$ROM_ID\.system\.part $MBS_CONF | cut -d'=' -f2`
-    ROM_SYSTEM_IMG=`grep mbs\.rom$ROM_ID\.system\.img $MBS_CONF | cut -d'=' -f2`
-    ROM_DATA_PART=`grep mbs\.rom$ROM_ID\.data\.part $MBS_CONF | cut -d'=' -f2`
-    ROM_DATA_IMG=`grep mbs\.rom$ROM_ID\.data\.img $MBS_CONF | cut -d'=' -f2`
-    ROM_DATA_PATH=`grep mbs\.rom$ROM_ID\.data\.path $MBS_CONF | cut -d'=' -f2`
+    ROM_SYSTEM_PART=`grep mbs\.rom$rom_id\.system\.part $MBS_CONF | cut -d'=' -f2`
+    ROM_SYSTEM_IMG=`grep mbs\.rom$rom_id\.system\.img $MBS_CONF | cut -d'=' -f2`
+    rom_data_part=`grep mbs\.rom$rom_id\.data\.part $MBS_CONF | cut -d'=' -f2`
+    ROM_DATA_IMG=`grep mbs\.rom$rom_id\.data\.img $MBS_CONF | cut -d'=' -f2`
+    ROM_DATA_PATH=`grep mbs\.rom$rom_id\.data\.path $MBS_CONF | cut -d'=' -f2`
 
     umount /mbs/mnt/data
 
 	func_check_part $ROM_SYSTEM_PART $ROM_SYSTEM_IMG
-	func_check_part $ROM_DATA_PART $ROM_DATA_IMG
+	func_check_part $rom_data_part $ROM_DATA_IMG
 
     # check error
     if [ -z "$ROM_SYSTEM_PART" ]; then
         ROM_SYSTEM_PART="$DEV_BLOCK_FACTORYFS"
         ROM_SYSTEM_IMG=""
     fi
-    if [ -z "$ROM_DATA_PART" ]; then
-        ROM_DATA_PART="$DEV_BLOCK_DATA"
+    if [ -z "$rom_data_part" ]; then
+        rom_data_part="$DEV_BLOCK_DATA"
         ROM_DATA_IMG=""
     fi
 
@@ -111,7 +111,7 @@ if [ "$1" = '2' ]; then
         fi
         mkdir -p /mbs/mnt/sys_img
         mount -t $PARTITION_FORMAT $ROM_SYSTEM_PART /mbs/mnt/sys_img
-        MBS_MOUNT_SYSTEM=`echo loop@/mbs/mnt/rom$ROM_ID/sys_img$ROM_SYSTEM_IMG | sed -e "s/\//\\\\\\\\\//g"`
+        MBS_MOUNT_SYSTEM=`echo loop@/mbs/mnt/rom$rom_id/sys_img$ROM_SYSTEM_IMG | sed -e "s/\//\\\\\\\\\//g"`
         sed -e "s/@MBS_MOUNT_SYSTEM/mount ext4 $MBS_MOUNT_SYSTEM \/system wait rw/g" /mbs/recovery/recovery.rc.sed > /recovery.rc
 
         echo "/system		ext4		/mbs/mnt/sys_img$ROM_SYSTEM_IMG		loop" >> /mbs/recovery/recovery.fstab
@@ -119,24 +119,24 @@ if [ "$1" = '2' ]; then
     fi
 
     if [ -z "$ROM_DATA_IMG" ]; then
-        echo "/data_dev	ext4		$ROM_DATA_PART" >> /mbs/recovery/recovery.fstab
+        echo "/data_dev	ext4		$rom_data_part" >> /mbs/recovery/recovery.fstab
 
         mkdir -p /data_dev
         ln -s /data_dev$ROM_DATA_PATH /data
     else
-        if [ "$ROM_DATA_PART" = "$DEV_BLOCK_SDCARD" ] || [ "$ROM_DATA_PART" = "$DEV_BLOCK_EMMC1" ]; then
+        if [ "$rom_data_part" = "$DEV_BLOCK_SDCARD" ] || [ "$rom_data_part" = "$DEV_BLOCK_EMMC1" ]; then
             PARTITION_FORMAT=vfat
         fi
         mkdir -p /mbs/mnt/data_img
         mkdir -p /data_dev
-        mount -t $PARTITION_FORMAT $ROM_DATA_PART /mbs/mnt/data_img
+        mount -t $PARTITION_FORMAT $rom_data_part /mbs/mnt/data_img
         ln -s /data_dev$ROM_DATA_PATH /data
 
         echo "/data_dev	ext4		/mbs/mnt/data_img$ROM_DATA_IMG		loop" >> /mbs/recovery/recovery.fstab
     fi
 
     #put current boot rom nuber info
-    echo $ROM_ID > /mbs/stat/bootrom
+    echo $rom_id > /mbs/stat/bootrom
 
 else
     # build target samsung or aosp
