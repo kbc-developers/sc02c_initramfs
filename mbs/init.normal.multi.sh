@@ -56,9 +56,9 @@ func_mbs_foce_pramary()
 {
 	export rom_id=0
 	export rom_data_part_0=$DEV_BLOCK_DATA
-	export ROM_DATA_IMG_0=""
+	export rom_data_img_0=""
 	#wraning last "/" is not need
-	export ROM_DATA_PATH_0=/mbs/mnt/rom0/data_dev$1
+	export rom_data_path_0=/mbs/mnt/rom0/data_dev$1
 
 	export rom_sys_part=$DEV_BLOCK_FACTORYFS
 	export rom_sys_img=""
@@ -72,7 +72,7 @@ func_mbs_foce_pramary()
 #create loopback device
 #    $1:arg_mnt_base
 #    $2:arg_img_part: partation
-#    $3:arg_img_path:$ROM_DATA_IMG
+#    $3:arg_img_path:$rom_data_img
 #    $4:arg_mnt_img: data_img / sys_img
 #    $5:arg_mnt_loop: data_loop / sys_loop
 #    $6:arg_dev_id; 20${id} /10${id}
@@ -195,33 +195,33 @@ func_get_mbs_info()
 		echo "for:$i" >> $MBS_LOG
 		# romX setting
 		rom_data_part=`grep mbs\.rom$i\.data\.part $MBS_CONF | cut -d'=' -f2`
-		ROM_DATA_IMG=`grep mbs\.rom$i\.data\.img $MBS_CONF | cut -d'=' -f2`
-		ROM_DATA_PATH=`grep mbs\.rom$i\.data\.path $MBS_CONF | cut -d'=' -f2`
+		rom_data_img=`grep mbs\.rom$i\.data\.img $MBS_CONF | cut -d'=' -f2`
+		rom_data_path=`grep mbs\.rom$i\.data\.path $MBS_CONF | cut -d'=' -f2`
 
 		if [ ! -z "$rom_data_part" ]; then
-			func_check_part $rom_data_part $ROM_DATA_IMG
+			func_check_part $rom_data_part $rom_data_img
 
 			mnt_base=/mbs/mnt/rom${i}
 			mnt_dir=$mnt_base/data_dev
 
-			if [ ! -z "$ROM_DATA_IMG" ]; then
-				func_mbs_create_loop_dev $mnt_base $rom_data_part $ROM_DATA_IMG data_img data_loop 20${i}
+			if [ ! -z "$rom_data_img" ]; then
+				func_mbs_create_loop_dev $mnt_base $rom_data_part $rom_data_img data_img data_loop 20${i}
 				rom_data_part=$RET
 				if [ -z "$rom_data_part" ]; then
 					echo rom${i} image is not exist >> $MBS_LOG
 				fi
 			fi
-			ROM_DATA_PATH=$mnt_dir$ROM_DATA_PATH
-			ROM_DATA_PATH=`echo $ROM_DATA_PATH | sed -e "s/\/$//g"`
+			rom_data_path=$mnt_dir$rom_data_path
+			rom_data_path=`echo $rom_data_path | sed -e "s/\/$//g"`
 
 			eval export rom_data_part_$i=$rom_data_part
-			eval export ROM_DATA_IMG_$i=$ROM_DATA_IMG
-			eval export ROM_DATA_PATH_$i=$ROM_DATA_PATH
+			eval export rom_data_img_$i=$rom_data_img
+			eval export rom_data_path_$i=$rom_data_path
 
 			#for Debug
 			eval echo mbs.rom${i}.data.part=$"rom_data_part_"$i >> $MBS_LOG
-			eval echo mbs.rom${i}.data.img=$"ROM_DATA_IMG_"$i >> $MBS_LOG
-			eval echo mbs.rom${i}.data.path=$"ROM_DATA_PATH_"$i >> $MBS_LOG
+			eval echo mbs.rom${i}.data.img=$"rom_data_img_"$i >> $MBS_LOG
+			eval echo mbs.rom${i}.data.path=$"rom_data_path_"$i >> $MBS_LOG
 		fi
 	done
 
@@ -279,7 +279,7 @@ func_vender_init()
 	mnt_data=$mnt_base/data_dev
 	mnt_system=/mbs/mnt/system
 
-	eval export boot_rom_data_path=$"ROM_DATA_PATH_"${rom_id}
+	eval export boot_rom_data_path=$"rom_data_path_"${rom_id}
 	eval rom_data_part=$"rom_data_part_"${rom_id}
 
 	mount -t ext4 $rom_sys_part $mnt_system || func_error "$rom_sys_part is invalid part"

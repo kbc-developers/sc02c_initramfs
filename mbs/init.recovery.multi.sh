@@ -78,13 +78,13 @@ if [ "$1" = '2' ]; then
     ROM_SYSTEM_PART=`grep mbs\.rom$rom_id\.system\.part $MBS_CONF | cut -d'=' -f2`
     ROM_SYSTEM_IMG=`grep mbs\.rom$rom_id\.system\.img $MBS_CONF | cut -d'=' -f2`
     rom_data_part=`grep mbs\.rom$rom_id\.data\.part $MBS_CONF | cut -d'=' -f2`
-    ROM_DATA_IMG=`grep mbs\.rom$rom_id\.data\.img $MBS_CONF | cut -d'=' -f2`
-    ROM_DATA_PATH=`grep mbs\.rom$rom_id\.data\.path $MBS_CONF | cut -d'=' -f2`
+    rom_data_img=`grep mbs\.rom$rom_id\.data\.img $MBS_CONF | cut -d'=' -f2`
+    rom_data_path=`grep mbs\.rom$rom_id\.data\.path $MBS_CONF | cut -d'=' -f2`
 
     umount /mbs/mnt/data
 
 	func_check_part $ROM_SYSTEM_PART $ROM_SYSTEM_IMG
-	func_check_part $rom_data_part $ROM_DATA_IMG
+	func_check_part $rom_data_part $rom_data_img
 
     # check error
     if [ -z "$ROM_SYSTEM_PART" ]; then
@@ -93,7 +93,7 @@ if [ "$1" = '2' ]; then
     fi
     if [ -z "$rom_data_part" ]; then
         rom_data_part="$DEV_BLOCK_DATA"
-        ROM_DATA_IMG=""
+        rom_data_img=""
     fi
 
     # create fstab
@@ -118,11 +118,11 @@ if [ "$1" = '2' ]; then
         echo /mbs/mnt/sys_img$ROM_SYSTEM_IMG > /mbs/stat/system_device
     fi
 
-    if [ -z "$ROM_DATA_IMG" ]; then
+    if [ -z "$rom_data_img" ]; then
         echo "/data_dev	ext4		$rom_data_part" >> /mbs/recovery/recovery.fstab
 
         mkdir -p /data_dev
-        ln -s /data_dev$ROM_DATA_PATH /data
+        ln -s /data_dev$rom_data_path /data
     else
         if [ "$rom_data_part" = "$DEV_BLOCK_SDCARD" ] || [ "$rom_data_part" = "$DEV_BLOCK_EMMC1" ]; then
             PARTITION_FORMAT=vfat
@@ -130,9 +130,9 @@ if [ "$1" = '2' ]; then
         mkdir -p /mbs/mnt/data_img
         mkdir -p /data_dev
         mount -t $PARTITION_FORMAT $rom_data_part /mbs/mnt/data_img
-        ln -s /data_dev$ROM_DATA_PATH /data
+        ln -s /data_dev$rom_data_path /data
 
-        echo "/data_dev	ext4		/mbs/mnt/data_img$ROM_DATA_IMG		loop" >> /mbs/recovery/recovery.fstab
+        echo "/data_dev	ext4		/mbs/mnt/data_img$rom_data_img		loop" >> /mbs/recovery/recovery.fstab
     fi
 
     #put current boot rom nuber info
