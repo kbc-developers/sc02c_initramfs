@@ -10,10 +10,8 @@ mount -t ext4 /dev/block/mmcblk0p9 $rom_sys_path
 mount -t ext4 /dev/block/mmcblk0p10 $rom_data_path
 
 export MBS_LOG=$rom_data_path/mbs.log
-echo "boot start : $BOOT_DATE" > $MBS_LOG
-
-
-
+boot_date=`date`
+echo "boot start single mode: $boot_date" > $MBS_LOG
 
 # check rom vendor
 if [ -f $rom_sys_path/framework/twframework.jar ]; then
@@ -43,7 +41,7 @@ sh /mbs/init.tgs2.sh $rom_data_path
 sys_part_sed=`echo $rom_sys_part | sed -e 's/\//\\\\\\//g'`
 data_part_sed=`echo $rom_data_part | sed -e 's/\//\\\\\\//g'`
 
-sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" > /init.smdk4210.rc
+sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" | sed -e "s/@MBS_COMMENT//g" > /init.smdk4210.rc
 #mv /init.smdk4210.rc  $rom_data_path/init.smdk4210.rc
 rm /init.smdk4210.rc.sed
 

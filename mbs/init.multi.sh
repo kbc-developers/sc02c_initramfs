@@ -68,7 +68,7 @@ echo " #---rom${i}.data
 done
 
 echo "#-- active rom data link to /data
-    symlink $BOOT_ROM_DATA_PATH /data
+    symlink $boot_rom_data_path /data
 
 #-- app share data link to /share share
     symlink /xdata/share /share/share  

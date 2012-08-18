@@ -12,13 +12,6 @@ export DEV_BLOCK_EMMC1=/dev/block/mmcblk1p1
 export DEV_BLOCK_EMMC2=/dev/block/mmcblk1p2
 export DEV_BLOCK_EMMC3=/dev/block/mmcblk1p3
 
-#export MBS_LOG=/xdata/mbs.log
-#export MBS_LOG_1="/xdata/mbs.old1.log"
-#export MBS_LOG_2="/xdata/mbs.old2.log"
-export MBS_CONF="/xdata/mbs.conf"
-export ERR_MSG="/xdata/mbs.err"
-
-
 PATH_=$PATH
 export PATH=/sbin
 
@@ -30,7 +23,7 @@ RECOVERY_MODE=`grep -c bootmode=2 /proc/cmdline`
 umount /proc
 
 #foce single boot mode
-IS_MODE=0
+IS_MODE=1
 
 #check multi mode
 if [ "$IS_MODE" = '0' ]; then
@@ -43,8 +36,11 @@ if [ "$IS_MODE" = '0' ]; then
 else
   #mbs mode
   mkdir /xdata
-  RECOVERY_SH=/mbs/init.recovery.multi.sh
+  #RECOVERY_SH=/mbs/init.recovery.multi.sh
+  RECOVERY_SH=/mbs/init.recovery.sh
   NORMAL_SH=/mbs/init.normal.multi.sh
+
+  cp /mbs/swrom /sbin
 fi
 
 #check boot mode

@@ -1,10 +1,16 @@
 #!/sbin/busybox sh
 
+export MBS_LOG=/xdata/mbs.log
+export MBS_LOG_1="/xdata/mbs.old1.log"
+export MBS_LOG_2="/xdata/mbs.old2.log"
+export MBS_CONF="/xdata/mbs.conf"
+export ERR_MSG="/xdata/mbs.err"
+
 #set config
 BUILD_TARGET=$1
 
 export INIT_RC_DST=/init.rc
-export INIT_RC_SRC=/mbs/init.rc.temp
+export INIT_RC_SRC=/init.rc.sed
 export LOOP_CNT="0 1 2 3 4 5 6 7"
 export RET=""
 
@@ -185,13 +191,13 @@ func_get_mbs_info()
 	echo "rom_id : $rom_id" >> $MBS_LOG
 
 	# check kernel
-	KERNEL_PART=`grep mbs\.rom$rom_id\.kernel\.part $MBS_CONF | cut -d'=' -f2`
-	KERNEL_IMG=`grep mbs\.rom$rom_id\.kernel\.img $MBS_CONF | cut -d'=' -f2`
-	if [ ! -z $KERNEL_PART ];then
-		#kernel swich does not support for boot speed
-		#func_check_part $KERNEL_PART $KERNEL_IMG
-		#sh /mbs/init.kernel.sh $KERNEL_PART $KERNEL_IMG
-	fi
+#	KERNEL_PART=`grep mbs\.rom$rom_id\.kernel\.part $MBS_CONF | cut -d'=' -f2`
+#	KERNEL_IMG=`grep mbs\.rom$rom_id\.kernel\.img $MBS_CONF | cut -d'=' -f2`
+#	if [ ! -z $KERNEL_PART ];then
+#		#kernel swich does not support for boot speed
+#		func_check_part $KERNEL_PART $KERNEL_IMG
+#		sh /mbs/init.kernel.sh $KERNEL_PART $KERNEL_IMG
+#	fi
 
 	echo "start of for" >> $MBS_LOG
 	for i in $LOOP_CNT; do
@@ -297,26 +303,21 @@ func_vender_init()
 	if [ -f $mnt_system/framework/twframework.jar ]; then
 		if [ -f $mnt_system/framework/framework-miui.jar ]; then
 			rom_vender=miui
-		    sh /mbs/init.miui.sh $mnt_system $boot_rom_data_path
 		else
 			rom_vender=samsung
-		    sh /mbs/init.samsung.sh $mnt_system $boot_rom_data_path
 		fi
 	else
 		SDK_VER=`grep ro\.build\.version\.sdk $mnt_system/build.prop | cut -d'=' -f2`
 		if [ "$SDK_VER" = '16' ]; then
 			rom_vender=aosp-jb
-		    sh /mbs/init.aosp-jb.sh $mnt_system $boot_rom_data_path
 		else
 			rom_vender=aosp-ics
-		    sh /mbs/init.aosp-ics.sh $mnt_system $boot_rom_data_path
 		fi
 	fi
 
 
 	sh /mbs/init.$rom_vender.sh $mnt_system $boot_rom_data_path
 	echo rom_vender=$rom_vender >> $MBS_LOG
-	cp /mbs/init.rc.temp /xdata/init.rc.temp
 
 	# Set TweakGS2 properties
 	sh /mbs/init.tgs2.sh $boot_rom_data_path
@@ -332,37 +333,31 @@ func_vender_init()
 #------------------------------------------------------
 func_make_init_rc()
 {
-	if [ "$BUILD_TARGET" = '2' ]; then
-		sh /mbs/init.multi.sh $1 $2
-		#sh /mbs/init.share.sh
-	else
-		sh /mbs/init.single.sh 0
-	fi
+	sh /mbs/init.multi.sh $1 $2
+	#sh /mbs/init.share.sh
 
-	cp /init.rc /xdata/init.rc
-
+	
 	echo end of init >> $MBS_LOG
-
-	#mbs dir remove,if single boot 
-	if [ "$BUILD_TARGET" != '2' ]; then
-		rm -r /mbs
-		rmdir /xdata
-	fi
 
 	# create init.smdk4210.rc
 	#escape 
 	sys_part_sed=`echo $rom_sys_part | sed -e 's/\//\\\\\\//g'`
 	data_part_sed=`echo $rom_data_part | sed -e 's/\//\\\\\\//g'`
 
-	sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" > /init.smdk4210.rc
+#
+
+	sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" | sed -e "s/@MBS_COMMENT/'#'/g" > /init.smdk4210.rc
 	#mv /init.smdk4210.rc  $rom_data_path/init.smdk4210.rc
 	rm /init.smdk4210.rc.sed
+
+	cp /init.rc /xdata/init.rc
+	cp /init.smdk4210.rc /xdata/init.smdk4210.rc
 }
 #==============================================================================
 # main process
 #==============================================================================
-BOOT_DATE=`date`
-
+echo $DEV_BLOCK_DATA
+mount -t ext4 $DEV_BLOCK_DATA /xdata
 #log backup----------------
 if [ -f $MBS_LOG_1 ]; then
 	mv $MBS_LOG_1 $MBS_LOG_2
@@ -371,31 +366,24 @@ if [ -f $MBS_LOG ]; then
 	mv $MBS_LOG $MBS_LOG_1
 fi
 #-------------------------
+boot_date=`date`
+echo "boot start mbs mode: $boot_date" > $MBS_LOG
 
-echo "boot start : $BOOT_DATE" > $MBS_LOG
-
-if [ "$BUILD_TARGET" = '2' ]; then
-
-	#patation,path infomation init
-	if [ ! -f $MBS_CONF ]; then
-		echo "$MBS_CONF is not exist" >> $MBS_LOG
-		func_error "$MBS_CONF is not exist"
-	else
-		func_mbs_init "$LOOP_CNT"
-		func_get_mbs_info
-	fi
-	#put current boot rom nuber info
-	mkdir /mbs/stat
-	echo $rom_id > /mbs/stat/bootrom
-
+#patation,path infomation init
+if [ ! -f $MBS_CONF ]; then
+	echo "$MBS_CONF is not exist" >> $MBS_LOG
+	func_error "$MBS_CONF is not exist"
 else
-	#/system is synbolic link when multi boot.
-	func_mbs_init 
-	func_mbs_foce_pramary
+	func_mbs_init "$LOOP_CNT"
+	func_get_mbs_info
 fi
+#put current boot rom nuber info
+mkdir /mbs/stat
+echo $rom_id > /mbs/stat/bootrom
 
 func_vender_init
 func_make_init_rc $rom_id $LOOP_CNT
 
+umount /xdata
 exit 0
 ##
