@@ -2,10 +2,6 @@
 
 # parameters
 #  $1 = ROM_ID
-#  $2 = LOOP_CNT
-
-#set config
-LOOP_CNT=$2
 
 #----------------------------
 # /system

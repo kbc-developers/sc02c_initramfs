@@ -329,11 +329,10 @@ func_vender_init()
 #------------------------------------------------------
 #make init.rc 
 #    $1:rom_id
-#    $2:LOOP_CNT
 #------------------------------------------------------
 func_make_init_rc()
 {
-	sh /mbs/init.multi.sh $1 $2
+	sh /mbs/init.multi.sh $1
 	#sh /mbs/init.share.sh
 
 	
@@ -346,7 +345,7 @@ func_make_init_rc()
 
 #
 
-	sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" | sed -e "s/@MBS_COMMENT/'#'/g" > /init.smdk4210.rc
+	sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" | sed -e "s/@MBS_COMMENT/#/g" > /init.smdk4210.rc
 	#mv /init.smdk4210.rc  $rom_data_path/init.smdk4210.rc
 	rm /init.smdk4210.rc.sed
 
@@ -382,7 +381,7 @@ mkdir /mbs/stat
 echo $rom_id > /mbs/stat/bootrom
 
 func_vender_init
-func_make_init_rc $rom_id $LOOP_CNT
+func_make_init_rc $rom_id "$LOOP_CNT"
 
 umount /xdata
 exit 0

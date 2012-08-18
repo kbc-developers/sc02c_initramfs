@@ -43,7 +43,7 @@ on fs
     symlink /lib/modules/scsi_wait_scan.ko /system/lib/modules/scsi_wait_scan.ko
 
     mount ext4 /dev/block/mmcblk0p7 /cache nosuid nodev noatime wait
-    mount ext4 @DATA_DEV /data nosuid nodev noatime wait noauto_da_alloc
+    @MBS_COMMENTmount ext4 @DATA_DEV /data nosuid nodev noatime wait noauto_da_alloc
     #mount ext4 /dev/block/mmcblk0p12 /preload nosuid nodev noatime wait
     
     mount ext4 /dev/block/mmcblk0p1 /efs nosuid nodev noatime wait
