@@ -3,11 +3,16 @@
 rom_sys_path=/mbs/mnt/system
 rom_data_path=/mbs/mnt/data
 
+rom_sys_part="/dev/block/mmcblk0p9"
+rom_data_part="/dev/block/mmcblk0p10"
+
 mount -t ext4 /dev/block/mmcblk0p9 $rom_sys_path
 mount -t ext4 /dev/block/mmcblk0p10 $rom_data_path
 
 export MBS_LOG=$rom_data_path/mbs.log
 echo "boot start : $BOOT_DATE" > $MBS_LOG
+
+
 
 
 # check rom vendor
@@ -32,6 +37,18 @@ fi
 
 # Set TweakGS2 properties
 sh /mbs/init.tgs2.sh $rom_data_path
+
+# create init.smdk4210.rc
+#escape 
+sys_part_sed=`echo $rom_sys_part | sed -e 's/\//\\\\\\//g'`
+data_part_sed=`echo $rom_data_part | sed -e 's/\//\\\\\\//g'`
+
+sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" > /init.smdk4210.rc
+#mv /init.smdk4210.rc  $rom_data_path/init.smdk4210.rc
+rm /init.smdk4210.rc.sed
+
+# create init.rc
+mv /init.rc.sed /init.rc
 
 umount $rom_sys_path
 umount $rom_data_path

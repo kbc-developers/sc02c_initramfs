@@ -1,5 +1,7 @@
 #!/sbin/busybox sh
 
+#$1:rom_sys\path $2:rom_data_path
+
 #set feature_aosp -> aosp
 mount -t proc proc /proc
 echo 1 > /proc/sys/kernel/feature_aosp
@@ -21,19 +23,8 @@ cp /mbs/aosp-jb/lpm.rc /
 cp /mbs/aosp-jb/adbd /sbin/
 cp /mbs/aosp-jb/bootanimation /sbin/
 # create init.rc
-cp /mbs/aosp-jb/init.rc /
+cp /mbs/aosp-jb/init.rc /init.rc.sed
 
 # create init.smdk4210.rc
-
-#set here for single debug
-rom_sys_part="/dev/block/mmcblk0p9"
-rom_data_part="/dev/block/mmcblk0p10"
-
-#escape 
-sys_part_sed=`echo $rom_sys_part | sed -e 's/\//\\\\\\//g'`
-data_part_sed=`echo $rom_data_part | sed -e 's/\//\\\\\\//g'`
-
-sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /mbs/aosp-jb/init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" > /init.smdk4210.rc
-
-cp /init.smdk4210.rc $2/init.smdk4210.rc
+cp /mbs/aosp-jb/init.smdk4210.rc.sed /
 

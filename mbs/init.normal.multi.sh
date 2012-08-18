@@ -3,6 +3,8 @@
 #set config
 BUILD_TARGET=$1
 
+export INIT_RC_DST=/init.rc
+export INIT_RC_SRC=/mbs/init.rc.temp
 export LOOP_CNT="0 1 2 3 4 5 6 7"
 export RET=""
 
@@ -186,8 +188,9 @@ func_get_mbs_info()
 	KERNEL_PART=`grep mbs\.rom$rom_id\.kernel\.part $MBS_CONF | cut -d'=' -f2`
 	KERNEL_IMG=`grep mbs\.rom$rom_id\.kernel\.img $MBS_CONF | cut -d'=' -f2`
 	if [ ! -z $KERNEL_PART ];then
-		func_check_part $KERNEL_PART $KERNEL_IMG
-		sh /mbs/init.kernel.sh $KERNEL_PART $KERNEL_IMG
+		#kernel swich does not support for boot speed
+		#func_check_part $KERNEL_PART $KERNEL_IMG
+		#sh /mbs/init.kernel.sh $KERNEL_PART $KERNEL_IMG
 	fi
 
 	echo "start of for" >> $MBS_LOG
@@ -238,13 +241,11 @@ func_get_mbs_info()
 
 		func_error "rom${rom_id} data is invalid"
 	fi
-
 	export rom_sys_part=`grep mbs\.rom$rom_id\.system\.part $MBS_CONF | cut -d'=' -f2`
 	export rom_sys_img=`grep mbs\.rom$rom_id\.system\.img $MBS_CONF | cut -d'=' -f2`
 	#export rom_sys_path=`grep mbs\.rom$rom_id\.system\.path $MBS_CONF | cut -d'=' -f2`
 	export rom_sys_path="/system"
 
-	
 	func_check_part $rom_sys_part $rom_sys_img
 	
 	mnt_base=/mbs/mnt/rom${rom_id}
@@ -265,7 +266,6 @@ func_get_mbs_info()
 	echo rom_sys_part=$rom_sys_part >> $MBS_LOG
 	echo rom_sys_img=$rom_sys_img >> $MBS_LOG
 	echo rom_sys_path=$rom_sys_path >> $MBS_LOG
-
 }
 
 #------------------------------------------------------
@@ -348,6 +348,15 @@ func_make_init_rc()
 		rm -r /mbs
 		rmdir /xdata
 	fi
+
+	# create init.smdk4210.rc
+	#escape 
+	sys_part_sed=`echo $rom_sys_part | sed -e 's/\//\\\\\\//g'`
+	data_part_sed=`echo $rom_data_part | sed -e 's/\//\\\\\\//g'`
+
+	sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" > /init.smdk4210.rc
+	#mv /init.smdk4210.rc  $rom_data_path/init.smdk4210.rc
+	rm /init.smdk4210.rc.sed
 }
 #==============================================================================
 # main process
