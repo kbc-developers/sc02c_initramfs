@@ -36,8 +36,8 @@ if [ "$IS_MODE" = '0' ]; then
 else
   #mbs mode
   mkdir /xdata
-  #RECOVERY_SH=/mbs/init.recovery.multi.sh
-  RECOVERY_SH=/mbs/init.recovery.sh
+  RECOVERY_SH=/mbs/init.recovery.multi.sh
+  #RECOVERY_SH=/mbs/init.recovery.sh
   NORMAL_SH=/mbs/init.normal.multi.sh
 
   cp /mbs/swrom /sbin

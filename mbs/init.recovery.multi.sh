@@ -1,5 +1,11 @@
 #!/sbin/busybox sh
 
+
+#set feature_aosp -> aosp
+mount -t proc proc /proc
+echo 1 > /proc/sys/kernel/feature_aosp
+umount /proc
+
 #------------------------------------------------------
 #foce ROM0 boot setting
 #   $1 xxxx.part value
@@ -50,7 +56,9 @@ func_check_part()
 	return 0
 }
 
-if [ "$1" = '2' ]; then
+#------------------------------------------------------
+# Main Process
+#------------------------------------------------------
     # build target multi
     cp /mbs/recovery/recovery.multi /sbin/recovery
 
@@ -75,21 +83,21 @@ if [ "$1" = '2' ]; then
         rom_id=$ret
     fi
 
-    ROM_SYSTEM_PART=`grep mbs\.rom$rom_id\.system\.part $MBS_CONF | cut -d'=' -f2`
-    ROM_SYSTEM_IMG=`grep mbs\.rom$rom_id\.system\.img $MBS_CONF | cut -d'=' -f2`
+    rom_system_part=`grep mbs\.rom$rom_id\.system\.part $MBS_CONF | cut -d'=' -f2`
+    rom_system_img=`grep mbs\.rom$rom_id\.system\.img $MBS_CONF | cut -d'=' -f2`
     rom_data_part=`grep mbs\.rom$rom_id\.data\.part $MBS_CONF | cut -d'=' -f2`
     rom_data_img=`grep mbs\.rom$rom_id\.data\.img $MBS_CONF | cut -d'=' -f2`
     rom_data_path=`grep mbs\.rom$rom_id\.data\.path $MBS_CONF | cut -d'=' -f2`
 
     umount /mbs/mnt/data
 
-	func_check_part $ROM_SYSTEM_PART $ROM_SYSTEM_IMG
+	func_check_part $rom_system_part $rom_system_img
 	func_check_part $rom_data_part $rom_data_img
 
     # check error
-    if [ -z "$ROM_SYSTEM_PART" ]; then
-        ROM_SYSTEM_PART="$DEV_BLOCK_FACTORYFS"
-        ROM_SYSTEM_IMG=""
+    if [ -z "$rom_system_part" ]; then
+        rom_system_part="$DEV_BLOCK_FACTORYFS"
+        rom_system_img=""
     fi
     if [ -z "$rom_data_part" ]; then
         rom_data_part="$DEV_BLOCK_DATA"
@@ -99,23 +107,23 @@ if [ "$1" = '2' ]; then
     # create fstab
     PARTITION_FORMAT=ext4
     echo "/xdata		ext4		$DEV_BLOCK_DATA" >> /mbs/recovery/recovery.fstab
-    if [ -z "$ROM_SYSTEM_IMG" ]; then
-        MBS_MOUNT_SYSTEM=`echo $ROM_SYSTEM_PART | sed -e "s/\//\\\\\\\\\//g"`
+    if [ -z "$rom_system_img" ]; then
+        MBS_MOUNT_SYSTEM=`echo $rom_system_part | sed -e "s/\//\\\\\\\\\//g"`
         sed -e "s/@MBS_MOUNT_SYSTEM/mount ext4 $MBS_MOUNT_SYSTEM \/system wait rw/g" /mbs/recovery/recovery.rc.sed > /recovery.rc
 
-        echo "/system		ext4		$ROM_SYSTEM_PART" >> /mbs/recovery/recovery.fstab
-        echo $ROM_SYSTEM_PART > /mbs/stat/system_device
+        echo "/system		ext4		$rom_system_part" >> /mbs/recovery/recovery.fstab
+        echo $rom_system_part > /mbs/stat/system_device
     else
-        if [ "$ROM_SYSTEM_PART" = "$DEV_BLOCK_SDCARD" ] || [ "$ROM_SYSTEM_PART" = "$DEV_BLOCK_EMMC1" ]; then
+        if [ "$rom_system_part" = "$DEV_BLOCK_SDCARD" ] || [ "$rom_system_part" = "$DEV_BLOCK_EMMC1" ]; then
             PARTITION_FORMAT=vfat
         fi
         mkdir -p /mbs/mnt/sys_img
-        mount -t $PARTITION_FORMAT $ROM_SYSTEM_PART /mbs/mnt/sys_img
-        MBS_MOUNT_SYSTEM=`echo loop@/mbs/mnt/rom$rom_id/sys_img$ROM_SYSTEM_IMG | sed -e "s/\//\\\\\\\\\//g"`
-        sed -e "s/@MBS_MOUNT_SYSTEM/mount ext4 $MBS_MOUNT_SYSTEM \/system wait rw/g" /mbs/recovery/recovery.rc.sed > /recovery.rc
+        mount -t $PARTITION_FORMAT $rom_system_part /mbs/mnt/sys_img
+        mbs_mount_system=`echo loop@/mbs/mnt/rom$rom_id/sys_img$rom_system_img | sed -e "s/\//\\\\\\\\\//g"`
+        sed -e "s/@MBS_MOUNT_SYSTEM/mount ext4 $mbs_mount_system \/system wait rw/g" /mbs/recovery/recovery.rc.sed > /recovery.rc
 
-        echo "/system		ext4		/mbs/mnt/sys_img$ROM_SYSTEM_IMG		loop" >> /mbs/recovery/recovery.fstab
-        echo /mbs/mnt/sys_img$ROM_SYSTEM_IMG > /mbs/stat/system_device
+        echo "/system		ext4		/mbs/mnt/sys_img$rom_system_img		loop" >> /mbs/recovery/recovery.fstab
+        echo /mbs/mnt/sys_img$rom_system_img > /mbs/stat/system_device
     fi
 
     if [ -z "$rom_data_img" ]; then
@@ -138,17 +146,6 @@ if [ "$1" = '2' ]; then
     #put current boot rom nuber info
     echo $rom_id > /mbs/stat/bootrom
 
-else
-    # build target samsung or aosp
-    cp /mbs/recovery/recovery.single /sbin/recovery
-
-    # create recovery.rc
-    sed -e "s/@MBS_MOUNT_SYSTEM/mount ext4 \/dev\/block\/mmcblk0p9 \/system wait rw/g" /mbs/recovery/recovery.rc.sed > /recovery.rc
-
-    # create fstab
-    echo "/system		ext4		$DEV_BLOCK_FACTORYFS" >> /mbs/recovery/recovery.fstab
-    echo "/data		ext4		$DEV_BLOCK_DATA" >> /mbs/recovery/recovery.fstab
-fi
 
 cp /mbs/recovery/recovery.fstab /misc/
 cp /mbs/recovery/default.prop /
