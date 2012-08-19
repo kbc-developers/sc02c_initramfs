@@ -37,7 +37,6 @@ else
   #mbs mode
   mkdir /xdata
   RECOVERY_SH=/mbs/init.recovery.multi.sh
-  #RECOVERY_SH=/mbs/init.recovery.sh
   NORMAL_SH=/mbs/init.normal.multi.sh
 
   cp /mbs/swrom /sbin

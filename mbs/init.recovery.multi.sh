@@ -1,11 +1,11 @@
 #!/sbin/busybox sh
 
+export MBS_CONF="/mbs/mnt/data/mbs.conf"
 
 #set feature_aosp -> aosp
 mount -t proc proc /proc
 echo 1 > /proc/sys/kernel/feature_aosp
 umount /proc
-
 #------------------------------------------------------
 #foce ROM0 boot setting
 #   $1 xxxx.part value

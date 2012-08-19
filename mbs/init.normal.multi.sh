@@ -1,13 +1,12 @@
 #!/sbin/busybox sh
 
+#set config
 export MBS_LOG=/xdata/mbs.log
 export MBS_LOG_1="/xdata/mbs.old1.log"
 export MBS_LOG_2="/xdata/mbs.old2.log"
 export MBS_CONF="/xdata/mbs.conf"
 export ERR_MSG="/xdata/mbs.err"
 
-#set config
-BUILD_TARGET=$1
 
 export INIT_RC_DST=/init.rc
 export INIT_RC_SRC=/init.rc.sed
