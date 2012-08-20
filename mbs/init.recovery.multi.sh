@@ -149,4 +149,4 @@ func_check_part()
 
 cp /mbs/recovery/recovery.fstab /misc/
 cp /mbs/recovery/default.prop /
-
+cp /mbs/recovery/updater.multi /sbin/updater
