@@ -17,7 +17,7 @@ func_make_conf()
     echo "mbs.rom0.system.part=$DEV_BLOCK_FACTORYFS" >> $MBS_CONF
     echo "mbs.rom0.data.part=$DEV_BLOCK_DATA" >> $MBS_CONF
     echo "mbs.rom0.data.path=/data0" >> $MBS_CONF
-    echo "mbs.rom1.system.part=/$DEV_BLOCK_HIDDEN" >> $MBS_CONF
+    echo "mbs.rom1.system.part=$DEV_BLOCK_HIDDEN" >> $MBS_CONF
     echo "mbs.rom1.data.part=$DEV_BLOCK_DATA" >> $MBS_CONF
     echo "mbs.rom1.data.path=/data1" >> $MBS_CONF
 }
