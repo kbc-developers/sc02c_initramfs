@@ -297,6 +297,10 @@ func_vender_init()
 	chmod 771 $boot_rom_data_path
 	chown system.system $boot_rom_data_path
 
+	if [ ! -f $mnt_system/build.prop ]; then
+		func_error "rom${rom_id} ROM is not installed "
+	fi
+
 	# android version code 9 or 10 is gingerbread, 14 or 15 is icecreamsandwitch
 	# or 16 is jeally beans
 	if [ -f $mnt_system/framework/twframework.jar ]; then
