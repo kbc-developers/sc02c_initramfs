@@ -30,7 +30,7 @@ fi
 echo ro.sf.lcd_density=$LCD_DENSITY >> /default.prop
 
 LOGGER=`grep ro\.tgs2\.logger $PROP_PATH | cut -d'=' -f2`
-if [ "$LOGGER" = '1' ]; then
+if [ "$LOGGER" = '1' ] || [ -z "$LOGGER" ] ; then
   insmod /lib/modules/logger.ko
 fi
 
