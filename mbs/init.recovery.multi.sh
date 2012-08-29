@@ -130,6 +130,13 @@ func_check_part()
         echo "/data_dev	ext4		$rom_data_part" >> /mbs/recovery/recovery.fstab
 
         mkdir -p /data_dev
+
+		if [ ! -z $rom_data_path ] || [ ! "$rom_data_path" = "/" ];then
+			mount -t ext4 $rom_data_part /data_dev 
+			mkdir -p /data_dev$rom_data_path
+			umont /data_dev
+		fi
+
         ln -s /data_dev$rom_data_path /data
     else
         if [ "$rom_data_part" = "$DEV_BLOCK_SDCARD" ] || [ "$rom_data_part" = "$DEV_BLOCK_EMMC1" ]; then
@@ -138,9 +145,16 @@ func_check_part()
         mkdir -p /mbs/mnt/data_img
         mkdir -p /data_dev
         mount -t $PARTITION_FORMAT $rom_data_part /mbs/mnt/data_img
-        ln -s /data_dev$rom_data_path /data
 
+		if [ ! -z $rom_data_path ] || [ ! "$rom_data_path" = "/" ];then
+			mount -t ext4 -o rw,loop /mbs/mnt/data_img$rom_data_img /data_dev 
+			mkdir -p /data_dev$rom_data_path
+			umont /data_dev
+		fi
+
+        ln -s /data_dev$rom_data_path /data
         echo "/data_dev	ext4		/mbs/mnt/data_img$rom_data_img		loop" >> /mbs/recovery/recovery.fstab
+
     fi
 
     #put current boot rom nuber info
