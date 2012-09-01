@@ -3,11 +3,11 @@
 rom_sys_path=/mbs/mnt/system
 rom_data_path=/mbs/mnt/data
 
-rom_sys_part="/dev/block/mmcblk0p9"
-rom_data_part="/dev/block/mmcblk0p10"
+rom_sys_part=$DEV_BLOCK_FACTORYFS
+rom_data_part=$DEV_BLOCK_DATA
 
-mount -t ext4 /dev/block/mmcblk0p9 $rom_sys_path
-mount -t ext4 /dev/block/mmcblk0p10 $rom_data_path
+mount -t ext4 $DEV_BLOCK_FACTORYFS $rom_sys_path
+mount -t ext4 $DEV_BLOCK_DATA $rom_data_path
 
 export MBS_LOG=$rom_data_path/mbs.log
 boot_date=`date`

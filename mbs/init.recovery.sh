@@ -1,7 +1,7 @@
 #!/sbin/busybox sh
 
-rom_sys_part="/dev/block/mmcblk0p9"
-rom_data_part="/dev/block/mmcblk0p10"
+rom_sys_part=$DEV_BLOCK_FACTORYFS
+rom_data_part=$DEV_BLOCK_DATA
 
 
 #set feature_aosp -> aosp
