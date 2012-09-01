@@ -54,7 +54,7 @@ fi
 rm -rf /dev/* /misc/dev.tar
 
 # init start
-mv /_init /init
+#mv /_init /init
 
 export PATH=$PATH_
 exec /init
