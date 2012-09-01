@@ -55,25 +55,6 @@ func_mbs_init()
 		chmod 755 /mbs/mnt/rom${i}/sys_img
 	done
 }
-#------------------------------------------------------
-#foce ROM0 boot setting
-#	$1: mount data path ( single / multi switch )
-#------------------------------------------------------
-func_mbs_foce_pramary()
-{
-	export rom_id=0
-	export rom_data_part_0=$DEV_BLOCK_DATA
-	export rom_data_img_0=""
-	#wraning last "/" is not need
-	export rom_data_path_0=/mbs/mnt/rom0/data_dev$1
-
-	export rom_sys_part=$DEV_BLOCK_FACTORYFS
-	export rom_sys_img=""
-	#wraning last "/" is not need
-	#export rom_sys_path=/mbs/mnt/rom0/sys_dev
-	export rom_sys_path="/system"
-}
-
 
 #------------------------------------------------------
 #create loopback device
@@ -264,7 +245,6 @@ func_get_mbs_info()
 
 	if [ -z "$rom_sys_part" ]; then
 		echo rom${rom_id} sys is invalid >> $MBS_LOG
-		#func_mbs_foce_pramary  "/data0"
 		func_error "rom${rom_id} sys is invalid"
 	fi		
 	#for Debug
