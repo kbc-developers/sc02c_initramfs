@@ -1,13 +1,11 @@
 #!/sbin/busybox sh
 
-rom_sys_part=$DEV_BLOCK_FACTORYFS
-rom_data_part=$DEV_BLOCK_DATA
+. /mbs/mbs_funcs.sh
 
+rom_sys_part=$MBS_BLKDEV_FACTORYFS
+rom_data_part=$MBS_BLKDEV_DATA
 
-#set feature_aosp -> aosp
-mount -t proc proc /proc
-echo 1 > /proc/sys/kernel/feature_aosp
-umount /proc
+func_set_feature_aosp $MBS_ROM_TYPE_AOSP
 
 cp /mbs/recovery/default.prop /
 

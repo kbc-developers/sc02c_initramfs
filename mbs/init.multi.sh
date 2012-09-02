@@ -30,8 +30,8 @@ sed -n "$n,${m}p" $INIT_RC_SRC >> $INIT_RC_DST
 echo  "  
 #------------------------------
     mkdir /xdata
-    exec check_filesystem $DEV_BLOCK_DATA ext4
-    mount ext4 $DEV_BLOCK_DATA /xdata nosuid nodev noatime wait crypt discard,noauto_da_alloc
+    exec check_filesystem $MBS_BLKDEV_DATA ext4
+    mount ext4 $MBS_BLKDEV_DATA /xdata nosuid nodev noatime wait crypt discard,noauto_da_alloc
     chown system system /xdata
     chmod 0775 /xdata
 

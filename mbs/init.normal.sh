@@ -3,11 +3,11 @@
 rom_sys_path=/mbs/mnt/system
 rom_data_path=/mbs/mnt/data
 
-rom_sys_part=$DEV_BLOCK_FACTORYFS
-rom_data_part=$DEV_BLOCK_DATA
+rom_sys_part=$MBS_BLKDEV_FACTORYFS
+rom_data_part=$MBS_BLKDEV_DATA
 
-mount -t ext4 $DEV_BLOCK_FACTORYFS $rom_sys_path
-mount -t ext4 $DEV_BLOCK_DATA $rom_data_path
+mount -t ext4 $MBS_BLKDEV_FACTORYFS $rom_sys_path
+mount -t ext4 $MBS_BLKDEV_DATA $rom_data_path
 
 export MBS_LOG=$rom_data_path/mbs.log
 boot_date=`date`
@@ -17,19 +17,19 @@ echo "boot start single mode: $boot_date" > $MBS_LOG
 if [ -f $rom_sys_path/framework/twframework.jar ]; then
     if [ -f $rom_sys_path/framework/framework-miui.jar ]; then
         echo ROM is miui >> $MBS_LOG
-        sh /mbs/init.miui.sh $rom_sys_path $rom_data_path
+        sh /mbs/setup_rom.sh miui $rom_sys_path $rom_data_path
     else
     	echo ROM is samsung >> $MBS_LOG
-        sh /mbs/init.samsung.sh $rom_sys_path $rom_data_path
+        sh /mbs/setup_rom.sh samsung $rom_sys_path $rom_data_path
     fi
 else
     SDK_VER=`grep ro\.build\.version\.sdk $rom_sys_path/build.prop | cut -d'=' -f2`
     if [ "$SDK_VER" = '16' ]; then
     	echo ROM is aosp-jb >> $MBS_LOG
-        sh /mbs/init.aosp-jb.sh $rom_sys_path $rom_data_path
+        sh /mbs/setup_rom.sh aosp-jb $rom_sys_path $rom_data_path
     else
     	echo ROM is aosp-ics >> $MBS_LOG
-        sh /mbs/init.aosp-ics.sh $rom_sys_path $rom_data_path
+        sh /mbs/setup_rom.sh aosp-ics $rom_sys_path $rom_data_path
     fi
 fi
 

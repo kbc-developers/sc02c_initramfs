@@ -14,11 +14,11 @@ umount /proc
 func_make_conf()
 {
     echo "mbs.boot.rom=0" > $MBS_CONF
-    echo "mbs.rom0.system.part=$DEV_BLOCK_FACTORYFS" >> $MBS_CONF
-    echo "mbs.rom0.data.part=$DEV_BLOCK_DATA" >> $MBS_CONF
+    echo "mbs.rom0.system.part=$MBS_BLKDEV_FACTORYFS" >> $MBS_CONF
+    echo "mbs.rom0.data.part=$MBS_BLKDEV_DATA" >> $MBS_CONF
     echo "mbs.rom0.data.path=/data0" >> $MBS_CONF
-    echo "mbs.rom1.system.part=$DEV_BLOCK_HIDDEN" >> $MBS_CONF
-    echo "mbs.rom1.data.part=$DEV_BLOCK_DATA" >> $MBS_CONF
+    echo "mbs.rom1.system.part=$MBS_BLKDEV_HIDDEN" >> $MBS_CONF
+    echo "mbs.rom1.data.part=$MBS_BLKDEV_DATA" >> $MBS_CONF
     echo "mbs.rom1.data.path=/data1" >> $MBS_CONF
 }
 #------------------------------------------------------
@@ -38,14 +38,14 @@ func_error()
 func_check_part()
 {
 	case $1 in
-		"$DEV_BLOCK_ZIMAGE"    )    return 0 ;;
-		"$DEV_BLOCK_FACTORYFS" )    return 0 ;;
-		"$DEV_BLOCK_DATA"      )    return 0 ;;
-		"$DEV_BLOCK_HIDDEN"    )    return 0 ;;
-		"$DEV_BLOCK_EMMC2"     )    return 0 ;;
-		"$DEV_BLOCK_EMMC3"     )    return 0 ;;
-		"$DEV_BLOCK_SDCARD"    )    echo "vfat part" ;;
-		"$DEV_BLOCK_EMMC1"     )    echo "vfat part" ;;
+		"$MBS_BLKDEV_ZIMAGE"    )    return 0 ;;
+		"$MBS_BLKDEV_FACTORYFS" )    return 0 ;;
+		"$MBS_BLKDEV_DATA"      )    return 0 ;;
+		"$MBS_BLKDEV_HIDDEN"    )    return 0 ;;
+		"$MBS_BLKDEV_EMMC2"     )    return 0 ;;
+		"$MBS_BLKDEV_EMMC3"     )    return 0 ;;
+		"$MBS_BLKDEV_SDCARD"    )    echo "vfat part" ;;
+		"$MBS_BLKDEV_EMMC1"     )    echo "vfat part" ;;
 	    *)       func_error "$1 is invalid part" ;;
 	esac
 
@@ -67,7 +67,7 @@ func_check_part()
 
     # parse mbs.conf
     mkdir -p /mbs/mnt/data
-    mount -t ext4 $DEV_BLOCK_DATA /mbs/mnt/data
+    mount -t ext4 $MBS_BLKDEV_DATA /mbs/mnt/data
 
     # move errmsg
     mv /mbs/mnt/data/mbs.err /mbs/stat/
@@ -96,17 +96,17 @@ func_check_part()
 
     # check error
     if [ -z "$rom_system_part" ]; then
-        rom_system_part="$DEV_BLOCK_FACTORYFS"
+        rom_system_part="$MBS_BLKDEV_FACTORYFS"
         rom_system_img=""
     fi
     if [ -z "$rom_data_part" ]; then
-        rom_data_part="$DEV_BLOCK_DATA"
+        rom_data_part="$MBS_BLKDEV_DATA"
         rom_data_img=""
     fi
 
     # create fstab
     PARTITION_FORMAT=ext4
-    echo "/xdata		ext4		$DEV_BLOCK_DATA" >> /mbs/recovery/recovery.fstab
+    echo "/xdata		ext4		$MBS_BLKDEV_DATA" >> /mbs/recovery/recovery.fstab
     if [ -z "$rom_system_img" ]; then
         MBS_MOUNT_SYSTEM=`echo $rom_system_part | sed -e "s/\//\\\\\\\\\//g"`
         sed -e "s/@MBS_MOUNT_SYSTEM/mount ext4 $MBS_MOUNT_SYSTEM \/system wait rw/g" /mbs/recovery/recovery.rc.sed > /recovery.rc
@@ -114,7 +114,7 @@ func_check_part()
         echo "/system		ext4		$rom_system_part" >> /mbs/recovery/recovery.fstab
         echo $rom_system_part > /mbs/stat/system_device
     else
-        if [ "$rom_system_part" = "$DEV_BLOCK_SDCARD" ] || [ "$rom_system_part" = "$DEV_BLOCK_EMMC1" ]; then
+        if [ "$rom_system_part" = "$MBS_BLKDEV_SDCARD" ] || [ "$rom_system_part" = "$MBS_BLKDEV_EMMC1" ]; then
             PARTITION_FORMAT=vfat
         fi
         mkdir -p /mbs/mnt/sys_img
@@ -139,7 +139,7 @@ func_check_part()
 
         ln -s /data_dev$rom_data_path /data
     else
-        if [ "$rom_data_part" = "$DEV_BLOCK_SDCARD" ] || [ "$rom_data_part" = "$DEV_BLOCK_EMMC1" ]; then
+        if [ "$rom_data_part" = "$MBS_BLKDEV_SDCARD" ] || [ "$rom_data_part" = "$MBS_BLKDEV_EMMC1" ]; then
             PARTITION_FORMAT=vfat
         fi
         mkdir -p /mbs/mnt/data_img
