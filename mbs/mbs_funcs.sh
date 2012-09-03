@@ -5,7 +5,9 @@ mbs_func_err_reboot()
 
     echo $MSG >> $MBS_LOG
     echo $MSG > $ERR_MSG
-    mv $MBS_CONF $MBS_CONF.keep
+    if [ -z $2 ]; then
+        mv $MBS_CONF $MBS_CONF.keep
+    fi
     sync
     sync
     sync
@@ -105,5 +107,18 @@ mbs_func_get_recovery_mode()
     MODE=`grep -c bootmode=2 /proc/cmdline`
     umount /proc
     echo $MODE
+}
+
+
+mbs_func_make_init_rc()
+{
+    # create init.smdk4210.rc
+    #escape
+    sys_part_sed=`echo $rom_sys_part | sed -e 's/\//\\\\\\//g'`
+    data_part_sed=`echo $rom_data_part | sed -e 's/\//\\\\\\//g'`
+
+    sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" | sed -e "s/@MBS_COMMENT/$1/g" > /init.smdk4210.rc
+    #mv /init.smdk4210.rc  $rom_data_path/init.smdk4210.rc
+    rm /init.smdk4210.rc.sed
 }
 

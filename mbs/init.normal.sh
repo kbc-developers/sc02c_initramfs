@@ -24,13 +24,7 @@ sh /mbs/setup_rom.sh $rom_vender $rom_sys_path $rom_data_path
 sh /mbs/setup_tgs2.sh $rom_data_path
 
 # create init.smdk4210.rc
-#escape 
-sys_part_sed=`echo $rom_sys_part | sed -e 's/\//\\\\\\//g'`
-data_part_sed=`echo $rom_data_part | sed -e 's/\//\\\\\\//g'`
-
-sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" | sed -e "s/@MBS_COMMENT//g" > /init.smdk4210.rc
-#mv /init.smdk4210.rc  $rom_data_path/init.smdk4210.rc
-rm /init.smdk4210.rc.sed
+mbs_func_make_init_rc
 
 # create init.rc
 mv /init.rc.sed /init.rc

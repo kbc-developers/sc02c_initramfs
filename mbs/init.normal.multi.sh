@@ -17,6 +17,23 @@ export LOOP_CNT="0 1 2 3 4 5 6 7"
 export RET=""
 
 #note)script process is "main process" is 1st
+#------------------------------------------------------
+# mbs log init
+#
+#------------------------------------------------------
+func_log_init()
+{
+    #log backup----------------
+    if [ -f $MBS_LOG_1 ]; then
+        mv $MBS_LOG_1 $MBS_LOG_2
+    fi
+    if [ -f $MBS_LOG ]; then
+        mv $MBS_LOG $MBS_LOG_1
+    fi
+    #-------------------------
+    boot_date=`date`
+    echo "boot start mbs mode: $boot_date" > $MBS_LOG
+}
 
 #------------------------------------------------------
 #init mbs dev mnt point
@@ -26,7 +43,13 @@ func_mbs_init()
 {
     #err staus clear (no check exist)
     rm $ERR_MSG
-    
+
+    #patation,path infomation init
+    if [ ! -f $MBS_CONF ]; then
+        echo "$MBS_CONF is not exist" >> $MBS_LOG
+        mbs_func_err_reboot "$MBS_CONF is not exist"
+    fi
+
     #/system is synbolic link when multi boot.
     #rmdir /system
     #system is directory mount 2012/02/05
@@ -117,11 +140,96 @@ func_mbs_create_loop_dev()
         export RET=$dev_loop
     else
         umount $mnt_img
-        export RET=""    4
+        export RET=""
         echo "warning)$img_path is not exist" >> $MBS_LOG
     fi
 }
 
+
+
+#------------------------------------------------------
+#mbs.conf anarisis & get infomation
+#    no args
+#    no check mbs.conf exist
+#------------------------------------------------------
+func_get_mbs_data_setting()
+{
+	arg_rom_id=$1
+    # romX setting
+    rom_data_part=`grep mbs\.rom$arg_rom_id\.data\.part $MBS_CONF | cut -d'=' -f2`
+    rom_data_img=`grep mbs\.rom$arg_rom_id\.data\.img $MBS_CONF | cut -d'=' -f2`
+    rom_data_path=`grep mbs\.rom$arg_rom_id\.data\.path $MBS_CONF | cut -d'=' -f2`
+
+    if [ ! -z "$rom_data_part" ]; then
+        mbs_func_check_partition $rom_data_part $rom_data_img
+
+        mnt_base=/mbs/mnt/rom${arg_rom_id}
+        mnt_dir=$mnt_base/data_dev
+
+        if [ ! -z "$rom_data_img" ]; then
+            func_mbs_create_loop_dev $mnt_base $rom_data_part $rom_data_img data_img data_loop 20${arg_rom_id}
+            rom_data_part=$RET
+            if [ -z "$rom_data_part" ]; then
+                echo rom${arg_rom_id} image is not exist >> $MBS_LOG
+            fi
+        fi
+        rom_data_path=$mnt_dir$rom_data_path
+        rom_data_path=`echo $rom_data_path | sed -e "s/\/$//g"`
+
+        eval export rom_data_part_$arg_rom_id=$rom_data_part
+        eval export rom_data_img_$arg_rom_id=$rom_data_img
+        eval export rom_data_path_$arg_rom_id=$rom_data_path
+    fi
+}
+
+#------------------------------------------------------
+#mbs.conf anarisis & get infomation
+#    $1 = rom_id
+#    no check mbs.conf exist
+#------------------------------------------------------
+func_get_mbs_system_setting()
+{
+    arg_rom_id=$1
+
+    export rom_sys_part=`grep mbs\.rom$arg_rom_id\.system\.part $MBS_CONF | cut -d'=' -f2`
+    export rom_sys_img=`grep mbs\.rom$arg_rom_id\.system\.img $MBS_CONF | cut -d'=' -f2`
+    #export rom_sys_path=`grep mbs\.rom$arg_rom_id\.system\.path $MBS_CONF | cut -d'=' -f2`
+    export rom_sys_path="/system"
+
+    mbs_func_check_partition $rom_sys_part $rom_sys_img
+
+    mnt_base=/mbs/mnt/rom${arg_rom_id}
+    mnt_dir=$mnt_base/sys_dev
+    if [ ! -z "$rom_sys_img" ]; then
+        echo rom_sys_img :$rom_sys_img >> $MBS_LOG
+
+        func_mbs_create_loop_dev $mnt_base $rom_sys_part $rom_sys_img sys_img sys_loop 10${arg_rom_id}
+        rom_sys_part=$RET
+    fi
+
+    if [ -z "$rom_sys_part" ]; then
+        echo rom${arg_rom_id} sys is invalid >> $MBS_LOG
+        mbs_func_err_reboot "rom${arg_rom_id} sys is invalid"
+    fi
+}
+
+#------------------------------------------------------
+#mbs.conf anarisis & get infomation
+#    $1 = rom_id
+#    no check mbs.conf exist
+#------------------------------------------------------
+func_get_mbs_kernel_setting()
+{
+     arg_rom_id=$1
+     # check kernel
+#    KERNEL_PART=`grep mbs\.rom$rom_id\.kernel\.part $MBS_CONF | cut -d'=' -f2`
+#    KERNEL_IMG=`grep mbs\.rom$rom_id\.kernel\.img $MBS_CONF | cut -d'=' -f2`
+#    if [ ! -z $KERNEL_PART ];then
+#        #kernel swich does not support for boot speed
+#        func_check_part $KERNEL_PART $KERNEL_IMG
+#        sh /mbs/init.kernel.sh $KERNEL_PART $KERNEL_IMG
+#    fi
+}
 #------------------------------------------------------
 #mbs.conf anarisis & get infomation
 #    no args
@@ -137,52 +245,24 @@ func_get_mbs_info()
       rom_id=$ret
     fi
     echo "rom_id : $rom_id" >> $MBS_LOG
+    #----------------------------
+    # set kernel
+    #----------------------------
+    #func_get_mbs_kernel_setting
 
-    # check kernel
-#    KERNEL_PART=`grep mbs\.rom$rom_id\.kernel\.part $MBS_CONF | cut -d'=' -f2`
-#    KERNEL_IMG=`grep mbs\.rom$rom_id\.kernel\.img $MBS_CONF | cut -d'=' -f2`
-#    if [ ! -z $KERNEL_PART ];then
-#        #kernel swich does not support for boot speed
-#        func_check_part $KERNEL_PART $KERNEL_IMG
-#        sh /mbs/init.kernel.sh $KERNEL_PART $KERNEL_IMG
-#    fi
-
-    echo "start of for" >> $MBS_LOG
+    #----------------------------
+    # set data
+    #----------------------------
+    echo "start of get data " >> $MBS_LOG
     for i in $LOOP_CNT; do
         echo "for:$i" >> $MBS_LOG
-        # romX setting
-        rom_data_part=`grep mbs\.rom$i\.data\.part $MBS_CONF | cut -d'=' -f2`
-        rom_data_img=`grep mbs\.rom$i\.data\.img $MBS_CONF | cut -d'=' -f2`
-        rom_data_path=`grep mbs\.rom$i\.data\.path $MBS_CONF | cut -d'=' -f2`
-
-        if [ ! -z "$rom_data_part" ]; then
-            mbs_func_check_part $rom_data_part $rom_data_img
-
-            mnt_base=/mbs/mnt/rom${i}
-            mnt_dir=$mnt_base/data_dev
-
-            if [ ! -z "$rom_data_img" ]; then
-                func_mbs_create_loop_dev $mnt_base $rom_data_part $rom_data_img data_img data_loop 20${i}
-                rom_data_part=$RET
-                if [ -z "$rom_data_part" ]; then
-                    echo rom${i} image is not exist >> $MBS_LOG
-                fi
-            fi
-            rom_data_path=$mnt_dir$rom_data_path
-            rom_data_path=`echo $rom_data_path | sed -e "s/\/$//g"`
-
-            eval export rom_data_part_$i=$rom_data_part
-            eval export rom_data_img_$i=$rom_data_img
-            eval export rom_data_path_$i=$rom_data_path
-
-            #for Debug
-            eval echo mbs.rom${i}.data.part=$"rom_data_part_"$i >> $MBS_LOG
-            eval echo mbs.rom${i}.data.img=$"rom_data_img_"$i >> $MBS_LOG
-            eval echo mbs.rom${i}.data.path=$"rom_data_path_"$i >> $MBS_LOG
-        fi
+        func_get_mbs_data_setting $i
+        #for Debug
+        eval echo mbs.rom${i}.data.part=$"rom_data_part_"$i >> $MBS_LOG
+        eval echo mbs.rom${i}.data.img=$"rom_data_img_"$i >> $MBS_LOG
+        eval echo mbs.rom${i}.data.path=$"rom_data_path_"$i >> $MBS_LOG
     done
-
-    echo "end of for" >> $MBS_LOG
+    echo "end of get data" >> $MBS_LOG
 
     #----------------------------
     # set system
@@ -195,26 +275,8 @@ func_get_mbs_info()
 
         mbs_func_err_reboot "rom${rom_id} data is invalid"
     fi
-    export rom_sys_part=`grep mbs\.rom$rom_id\.system\.part $MBS_CONF | cut -d'=' -f2`
-    export rom_sys_img=`grep mbs\.rom$rom_id\.system\.img $MBS_CONF | cut -d'=' -f2`
-    #export rom_sys_path=`grep mbs\.rom$rom_id\.system\.path $MBS_CONF | cut -d'=' -f2`
-    export rom_sys_path="/system"
+    func_get_mbs_system_setting $rom_id
 
-    mbs_func_check_part $rom_sys_part $rom_sys_img
-    
-    mnt_base=/mbs/mnt/rom${rom_id}
-    mnt_dir=$mnt_base/sys_dev
-    if [ ! -z "$rom_sys_img" ]; then
-        echo rom_sys_img :$rom_sys_img >> $MBS_LOG    
-
-        func_mbs_create_loop_dev $mnt_base $rom_sys_part $rom_sys_img sys_img sys_loop 10${rom_id}
-        rom_sys_part=$RET
-    fi
-
-    if [ -z "$rom_sys_part" ]; then
-        echo rom${rom_id} sys is invalid >> $MBS_LOG
-        mbs_func_err_reboot "rom${rom_id} sys is invalid"
-    fi        
     #for Debug
     echo rom_sys_part=$rom_sys_part >> $MBS_LOG
     echo rom_sys_img=$rom_sys_img >> $MBS_LOG
@@ -246,10 +308,10 @@ func_vender_init()
     chown system.system $boot_rom_data_path
 
     if [ ! -f $mnt_system/build.prop ]; then
-        mbs_func_err_reboot "rom${rom_id} ROM is not installed "
+        mbs_func_err_reboot "rom${rom_id} ROM is not installed " "no init"
     fi
 
-        $rom_vender=`mbs_func_detect_rom_vendor $mnt_system`
+    rom_vender=`mbs_func_detect_rom_vendor $mnt_system`
     sh /mbs/setup_rom.sh $rom_vender $mnt_system $boot_rom_data_path
     echo rom_vender=$rom_vender >> $MBS_LOG
 
@@ -261,60 +323,39 @@ func_vender_init()
 }
 
 #------------------------------------------------------
-#make init.rc 
+# put current boot rom id
 #    $1:rom_id
 #------------------------------------------------------
-func_make_init_rc()
+func_put_rom_id()
 {
-    sh /mbs/setup_multi.sh $1
-    
-    echo end of init >> $MBS_LOG
-
-    # create init.smdk4210.rc
-    #escape 
-    sys_part_sed=`echo $rom_sys_part | sed -e 's/\//\\\\\\//g'`
-    data_part_sed=`echo $rom_data_part | sed -e 's/\//\\\\\\//g'`
-
-#
-
-    sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" | sed -e "s/@MBS_COMMENT/#/g" > /init.smdk4210.rc
-    #mv /init.smdk4210.rc  $rom_data_path/init.smdk4210.rc
-    rm /init.smdk4210.rc.sed
-
-    cp /init.rc /xdata/init.rc
-    cp /init.smdk4210.rc /xdata/init.smdk4210.rc
+    mkdir /mbs/stat
+    echo $rom_id > /mbs/stat/bootrom
 }
+
+
+
+
 #==============================================================================
 # main process
 #==============================================================================
 echo $MBS_BLKDEV_DATA
 mount -t ext4 $MBS_BLKDEV_DATA /xdata
-#log backup----------------
-if [ -f $MBS_LOG_1 ]; then
-    mv $MBS_LOG_1 $MBS_LOG_2
-fi
-if [ -f $MBS_LOG ]; then
-    mv $MBS_LOG $MBS_LOG_1
-fi
-#-------------------------
-boot_date=`date`
-echo "boot start mbs mode: $boot_date" > $MBS_LOG
 
-#patation,path infomation init
-if [ ! -f $MBS_CONF ]; then
-    echo "$MBS_CONF is not exist" >> $MBS_LOG
-    mbs_func_err_reboot "$MBS_CONF is not exist"
-else
-    func_mbs_init "$LOOP_CNT"
-    func_get_mbs_info
-fi
-#put current boot rom nuber info
-mkdir /mbs/stat
-echo $rom_id > /mbs/stat/bootrom
+func_log_init
+func_mbs_init "$LOOP_CNT"
+func_get_mbs_info
 
+func_put_rom_id
 func_vender_init
-func_make_init_rc $rom_id "$LOOP_CNT"
 
+sh /mbs/setup_multi.sh $rom_id
+
+mbs_func_make_init_rc "#"
+
+cp /init.rc /xdata/init.rc
+cp /init.smdk4210.rc /xdata/init.smdk4210.rc
+
+echo end of init >> $MBS_LOG
 umount /xdata
 exit 0
 ##
