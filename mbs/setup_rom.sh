@@ -6,20 +6,28 @@ ROM_NAME=$1
 SYSTEM_DIR=$2
 DATA_DIR=$3
 
-setup_rom_aosp()
+func_setup_recovery()
 {
     NAME=$1
 
-    func_set_feature_aosp $MBS_ROM_TYPE_AOSP
-    func_extract_files /mbs/$NAME /mbs/$NAME/$NAME.list
+    msb_func_set_feature_aosp $MBS_ROM_TYPE_AOSP
+    msb_func_extract_files /mbs/root/recovery /mbs/root/recovery/$NAME-file.list
 }
 
-setup_rom_samsung()
+func_setup_aosp()
 {
     NAME=$1
 
-    func_set_feature_aosp $MBS_ROM_TYPE_SAMSUNG
-    func_extract_files /mbs/$NAME /mbs/$NAME/$NAME.list
+    msb_func_set_feature_aosp $MBS_ROM_TYPE_AOSP
+    msb_func_extract_files /mbs/root/$NAME /mbs/root/$NAME/file.list
+}
+
+func_setup_samsung()
+{
+    NAME=$1
+
+    msb_func_set_feature_aosp $MBS_ROM_TYPE_SAMSUNG
+    msb_func_extract_files /mbs/root/$NAME /mbs/root/$NAME/file.list
 
     # check bootanimation
     if [ -f $DATA_DIR/local/bootanimation.zip ] || [ -f $SYSTEM_DIR/media/bootanimation.zip ]; then
@@ -31,6 +39,7 @@ setup_rom_samsung()
         BOOTANIM_WAIT=""
     fi
     sed -e "s/@BOOTANI_UID/$BOOTANI_UID/g" /init.rc.sed.sed | sed -e "s/@BOOTANIM_WAIT/$BOOTANIM_WAIT/g" > /init.rc.sed
+    rm /init.rc.sed.sed
 
     if [ $NAME = "samsung" ]; then
         # fix LPG Camera/movie
@@ -38,12 +47,15 @@ setup_rom_samsung()
     fi
 }
 
+
 case "$ROM_NAME" in
-  "aosp-ics" ) setup_rom_aosp aosp-ics ;;
-  "aosp-jb" ) setup_rom_aosp aosp-jb ;;
-  "lpm" ) setup_rom_aosp lpm ;;
-  "miui" ) setup_rom_samsung miui ;;
-  "samsung" ) setup_rom_samsugn samsung ;;
-  * ) func_err_reboot "error: not found ROM_NAME" ;;
+  "recovery-single" ) func_setup_recovery single ;;
+  "recovery-multi" ) func_setup_recovery multi ;;
+  "lpm" ) func_setup_aosp lpm ;;
+  "aosp-ics" ) func_setup_aosp aosp-ics ;;
+  "aosp-jb" ) func_setup_aosp aosp-jb ;;
+  "miui" ) func_setup_samsung miui ;;
+  "samsung" ) func_setup_samsung samsung ;;
+  * ) mbs_func_err_reboot "error: not found ROM_NAME" ;;
 esac
 

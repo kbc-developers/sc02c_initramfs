@@ -34,7 +34,7 @@ else
 fi
 
 # Set TweakGS2 properties
-sh /mbs/init.tgs2.sh $rom_data_path
+sh /mbs/setup_tgs2.sh $rom_data_path
 
 # create init.smdk4210.rc
 #escape 

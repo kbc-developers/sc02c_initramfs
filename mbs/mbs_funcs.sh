@@ -1,5 +1,5 @@
 
-func_err_reboot()
+msb_func_err_reboot()
 {
     MSG=$1
 
@@ -14,7 +14,7 @@ func_err_reboot()
     reboot recovery
 }
 
-func_set_feature_aosp()
+msb_func_set_feature_aosp()
 {
     ROM_TYPE=$1
 
@@ -23,7 +23,7 @@ func_set_feature_aosp()
     umount /proc
 }
 
-func_extract_files()
+msb_func_extract_files()
 {
     SRC_DIR=$1
     LIST_FILE=$2
@@ -34,4 +34,72 @@ func_extract_files()
     done
 }
 
+mbs_func_generate_conf()
+{
+    echo "mbs.boot.rom=0" > $MBS_CONF
+    echo "mbs.rom0.system.part=$MBS_BLKDEV_FACTORYFS" >> $MBS_CONF
+    echo "mbs.rom0.data.part=$MBS_BLKDEV_DATA" >> $MBS_CONF
+    echo "mbs.rom0.data.path=/data0" >> $MBS_CONF
+    echo "mbs.rom1.system.part=$MBS_BLKDEV_HIDDEN" >> $MBS_CONF
+    echo "mbs.rom1.data.part=$MBS_BLKDEV_DATA" >> $MBS_CONF
+    echo "mbs.rom1.data.path=/data1" >> $MBS_CONF
+}
+
+mbs_func_check_partition()
+{
+    PART=$1
+    IMG=$2
+
+    case $PART in
+        "$MBS_BLKDEV_ZIMAGE" )    return 0 ;;
+        "$MBS_BLKDEV_FACTORYFS" ) return 0 ;;
+        "$MBS_BLKDEV_DATA" )      return 0 ;;
+        "$MBS_BLKDEV_HIDDEN")     return 0 ;;
+        "$MBS_BLKDEV_EMMC2" )     return 0 ;;
+        "$MBS_BLKDEV_EMMC3" )     return 0 ;;
+        "$MBS_BLKDEV_SDCARD" )    echo "vfat part" ;;
+        "$MBS_BLKDEV_EMMC1" )     echo "vfat part" ;;
+        *) msb_func_err_reboot "$1 is invalid part" ;;
+    esac
+
+    if [ -z $IMG ]; then
+        msb_func_err_reboot "no img detect!"
+    fi
+
+    return 0
+}
+
+mbs_func_detect_rom_vendor()
+{
+    if [ -f $rom_sys_path/framework/twframework.jar ]; then
+        if [ -f $rom_sys_path/framework/framework-miui.jar ]; then
+            echo miui
+        else
+            echo samsung
+        fi
+    else
+        SDK_VER=`grep ro\.build\.version\.sdk $rom_sys_path/build.prop | cut -d'=' -f2`
+        if [ "$SDK_VER" = '16' ]; then
+            echo aosp-jb
+        else
+            echo aosp-ics
+        fi
+    fi
+}
+
+mbs_func_get_low_power_mode()
+{
+    mount -t sysfs sysfs /sys
+    MODE=`cat /sys/class/power_supply/battery/batt_lp_charging`
+    umount /sys
+    echo $MODE
+}
+
+mbs_func_get_recovery_mode()
+{
+    mount -t proc proc /proc
+    MODE=`grep -c bootmode=2 /proc/cmdline`
+    umount /proc
+    echo $MODE
+}
 

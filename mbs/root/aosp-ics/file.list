@@ -6,3 +6,4 @@
 /ueventd.smdk4210.rc
 /init.rc.sed
 /init.smdk4210.rc.sed
+/init

@@ -1,5 +1,6 @@
 #!/sbin/busybox sh
 
+. /mbs/mbs_const
 . /mbs/mbs_funcs.sh
 
 #set config
@@ -122,32 +123,6 @@ func_mbs_create_loop_dev()
 }
 
 #------------------------------------------------------
-# check patation
-#   $1 xxxx.part value
-#   $2 xxxx.img value
-#------------------------------------------------------
-func_check_part()
-{
-	case $1 in
-		"$MBS_BLKDEV_ZIMAGE"    )    return 0 ;;
-		"$MBS_BLKDEV_FACTORYFS" )    return 0 ;;
-		"$MBS_BLKDEV_DATA"      )    return 0 ;;
-		"$MBS_BLKDEV_HIDDEN"    )    return 0 ;;
-		"$MBS_BLKDEV_EMMC2"     )    return 0 ;;
-		"$MBS_BLKDEV_EMMC3"     )    return 0 ;;
-		"$MBS_BLKDEV_SDCARD"    )    echo "vfat part" ;;
-		"$MBS_BLKDEV_EMMC1"     )    echo "vfat part" ;;
-	    *)       func_err_reboot "$1 is invalid part" ;;
-	esac
-
-	if [ -z $2 ]; then
-		func_err_reboot  "no img detect!"
-	fi
-	#echo "part is OK"
-	return 0
-}
-
-#------------------------------------------------------
 #mbs.conf anarisis & get infomation
 #    no args
 #    no check mbs.conf exist
@@ -181,7 +156,7 @@ func_get_mbs_info()
 		rom_data_path=`grep mbs\.rom$i\.data\.path $MBS_CONF | cut -d'=' -f2`
 
 		if [ ! -z "$rom_data_part" ]; then
-			func_check_part $rom_data_part $rom_data_img
+			mbs_func_check_part $rom_data_part $rom_data_img
 
 			mnt_base=/mbs/mnt/rom${i}
 			mnt_dir=$mnt_base/data_dev
@@ -218,14 +193,14 @@ func_get_mbs_info()
 		echo rom${rom_id} data is invalid >> $MBS_LOG
 		#rom_id=0
 
-		func_err_reboot "rom${rom_id} data is invalid"
+		mbs_func_err_reboot "rom${rom_id} data is invalid"
 	fi
 	export rom_sys_part=`grep mbs\.rom$rom_id\.system\.part $MBS_CONF | cut -d'=' -f2`
 	export rom_sys_img=`grep mbs\.rom$rom_id\.system\.img $MBS_CONF | cut -d'=' -f2`
 	#export rom_sys_path=`grep mbs\.rom$rom_id\.system\.path $MBS_CONF | cut -d'=' -f2`
 	export rom_sys_path="/system"
 
-	func_check_part $rom_sys_part $rom_sys_img
+	mbs_func_check_part $rom_sys_part $rom_sys_img
 	
 	mnt_base=/mbs/mnt/rom${rom_id}
 	mnt_dir=$mnt_base/sys_dev
@@ -238,7 +213,7 @@ func_get_mbs_info()
 
 	if [ -z "$rom_sys_part" ]; then
 		echo rom${rom_id} sys is invalid >> $MBS_LOG
-		func_err_reboot "rom${rom_id} sys is invalid"
+		mbs_func_err_reboot "rom${rom_id} sys is invalid"
 	fi		
 	#for Debug
 	echo rom_sys_part=$rom_sys_part >> $MBS_LOG
@@ -260,8 +235,8 @@ func_vender_init()
 	eval export boot_rom_data_path=$"rom_data_path_"${rom_id}
 	eval rom_data_part=$"rom_data_part_"${rom_id}
 
-	mount -t ext4 $rom_sys_part $mnt_system || func_err_reboot "$rom_sys_part is invalid part"
-	mount -t ext4 $rom_data_part $mnt_data || func_err_reboot "$rom_data_part is invalid part"
+	mount -t ext4 $rom_sys_part $mnt_system || mbs_func_err_reboot "$rom_sys_part is invalid part"
+	mount -t ext4 $rom_data_part $mnt_data || mbs_func_err_reboot "$rom_data_part is invalid part"
 	#temporary 
 	#make "data" dir is need to mount data patation.
 	#echo mnt_data=$mnt_data >> $MBS_LOG
@@ -271,7 +246,7 @@ func_vender_init()
 	chown system.system $boot_rom_data_path
 
 	if [ ! -f $mnt_system/build.prop ]; then
-		func_err_reboot "rom${rom_id} ROM is not installed "
+		mbs_func_err_reboot "rom${rom_id} ROM is not installed "
 	fi
 
 	# android version code 9 or 10 is gingerbread, 14 or 15 is icecreamsandwitch
@@ -296,7 +271,7 @@ func_vender_init()
 	echo rom_vender=$rom_vender >> $MBS_LOG
 
 	# Set TweakGS2 properties
-	sh /mbs/init.tgs2.sh $boot_rom_data_path
+	sh /mbs/setup_tgs2.sh $boot_rom_data_path
 
 	umount $mnt_system
 	umount $mnt_data
@@ -308,9 +283,7 @@ func_vender_init()
 #------------------------------------------------------
 func_make_init_rc()
 {
-	sh /mbs/init.multi.sh $1
-	#sh /mbs/init.share.sh
-
+	sh /mbs/setup_multi.sh $1
 	
 	echo end of init >> $MBS_LOG
 
@@ -347,7 +320,7 @@ echo "boot start mbs mode: $boot_date" > $MBS_LOG
 #patation,path infomation init
 if [ ! -f $MBS_CONF ]; then
 	echo "$MBS_CONF is not exist" >> $MBS_LOG
-	func_err_reboot "$MBS_CONF is not exist"
+	mbs_func_err_reboot "$MBS_CONF is not exist"
 else
 	func_mbs_init "$LOOP_CNT"
 	func_get_mbs_info

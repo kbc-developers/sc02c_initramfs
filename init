@@ -10,7 +10,7 @@ LOW_POWER_MODE=`cat /sys/class/power_supply/battery/batt_lp_charging`
 umount /sys
 
 if [ "$LOW_POWER_MODE" = '1' ]; then
-  sh /mbs/setup_rom.sh lpm
+  sh /mbs/init.lpm.sh
   export PATH=$PATH_
   exec /init
 fi
@@ -32,12 +32,10 @@ if [ "$IS_MODE" = '0' ]; then
   mkdir /system
   mkdir /data
   chmod 0771 /data
-  RECOVERY_SH=/mbs/init.recovery.sh
   NORMAL_SH=/mbs/init.normal.sh
 else
   #mbs mode
   mkdir /xdata
-  RECOVERY_SH=/mbs/init.recovery.multi.sh
   NORMAL_SH=/mbs/init.normal.multi.sh
 
   cp /mbs/swrom /sbin
@@ -46,7 +44,7 @@ fi
 #check boot mode
 if [ "$RECOVERY_MODE" = '1' ]; then
   # recovery mode
-  sh $RECOVERY_SH
+  sh /mbs/init.recovery.sh $IS_MODE
 else
   sh $NORMAL_SH
 fi

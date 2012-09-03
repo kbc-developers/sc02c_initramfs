@@ -1,0 +1,6 @@
+/default.prop
+/init.rc.sed
+/misc/recovery.fstab
+/sbin/recovery
+/sbin/updater
+/init
