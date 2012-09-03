@@ -56,6 +56,6 @@ case "$ROM_NAME" in
   "aosp-jb" ) func_setup_aosp aosp-jb ;;
   "miui" ) func_setup_samsung miui ;;
   "samsung" ) func_setup_samsung samsung ;;
-  * ) mbs_func_err_reboot "error: not found ROM_NAME" ;;
+  * ) mbs_func_err_reboot "error: not found ROM_NAME=$ROM_NAME" ;;
 esac
 

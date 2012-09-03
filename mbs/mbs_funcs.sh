@@ -36,13 +36,15 @@ msb_func_extract_files()
 
 mbs_func_generate_conf()
 {
-    echo "mbs.boot.rom=0" > $MBS_CONF
-    echo "mbs.rom0.system.part=$MBS_BLKDEV_FACTORYFS" >> $MBS_CONF
-    echo "mbs.rom0.data.part=$MBS_BLKDEV_DATA" >> $MBS_CONF
-    echo "mbs.rom0.data.path=/data0" >> $MBS_CONF
-    echo "mbs.rom1.system.part=$MBS_BLKDEV_HIDDEN" >> $MBS_CONF
-    echo "mbs.rom1.data.part=$MBS_BLKDEV_DATA" >> $MBS_CONF
-    echo "mbs.rom1.data.path=/data1" >> $MBS_CONF
+    CONF=$1
+
+    echo "mbs.boot.rom=0" > $CONF
+    echo "mbs.rom0.system.part=$MBS_BLKDEV_FACTORYFS" >> $CONF
+    echo "mbs.rom0.data.part=$MBS_BLKDEV_DATA" >> $CONF
+    echo "mbs.rom0.data.path=/data0" >> $CONF
+    echo "mbs.rom1.system.part=$MBS_BLKDEV_HIDDEN" >> $CONF
+    echo "mbs.rom1.data.part=$MBS_BLKDEV_DATA" >> $CONF
+    echo "mbs.rom1.data.path=/data1" >> $CONF
 }
 
 mbs_func_check_partition()
@@ -72,6 +74,7 @@ mbs_func_check_partition()
 mbs_func_detect_rom_vendor()
 {
     SYS_PATH=$1
+
     if [ -f $SYS_PATH/framework/twframework.jar ]; then
         if [ -f $SYS_PATH/framework/framework-miui.jar ]; then
             echo miui

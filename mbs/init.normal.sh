@@ -17,7 +17,7 @@ boot_date=`date`
 echo "boot start single mode: $boot_date" > $MBS_LOG
 
 # check rom vendor
-$rom_vender=`mbs_func_detect_rom_vendor $rom_sys_path`
+rom_vender=`mbs_func_detect_rom_vendor $rom_sys_path`
 sh /mbs/setup_rom.sh $rom_vender $rom_sys_path $rom_data_path
 
 # Set TweakGS2 properties
