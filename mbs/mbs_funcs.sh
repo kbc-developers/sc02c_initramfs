@@ -1,5 +1,5 @@
 
-msb_func_err_reboot()
+mbs_func_err_reboot()
 {
     MSG=$1
 
@@ -14,7 +14,7 @@ msb_func_err_reboot()
     reboot recovery
 }
 
-msb_func_set_feature_aosp()
+mbs_func_set_feature_aosp()
 {
     ROM_TYPE=$1
 
@@ -23,7 +23,7 @@ msb_func_set_feature_aosp()
     umount /proc
 }
 
-msb_func_extract_files()
+mbs_func_extract_files()
 {
     SRC_DIR=$1
     LIST_FILE=$2
@@ -61,11 +61,11 @@ mbs_func_check_partition()
         "$MBS_BLKDEV_EMMC3" )     return 0 ;;
         "$MBS_BLKDEV_SDCARD" )    echo "vfat part" ;;
         "$MBS_BLKDEV_EMMC1" )     echo "vfat part" ;;
-        *) msb_func_err_reboot "$1 is invalid part" ;;
+        *) mbs_func_err_reboot "$1 is invalid part" ;;
     esac
 
     if [ -z $IMG ]; then
-        msb_func_err_reboot "no img detect!"
+        mbs_func_err_reboot "no img detect!"
     fi
 
     return 0

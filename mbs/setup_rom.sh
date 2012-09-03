@@ -10,24 +10,24 @@ func_setup_recovery()
 {
     NAME=$1
 
-    msb_func_set_feature_aosp $MBS_ROM_TYPE_AOSP
-    msb_func_extract_files /mbs/root/recovery /mbs/root/recovery/$NAME-file.list
+    mbs_func_set_feature_aosp $MBS_ROM_TYPE_AOSP
+    mbs_func_extract_files /mbs/root/recovery /mbs/root/recovery/$NAME-file.list
 }
 
 func_setup_aosp()
 {
     NAME=$1
 
-    msb_func_set_feature_aosp $MBS_ROM_TYPE_AOSP
-    msb_func_extract_files /mbs/root/$NAME /mbs/root/$NAME/file.list
+    mbs_func_set_feature_aosp $MBS_ROM_TYPE_AOSP
+    mbs_func_extract_files /mbs/root/$NAME /mbs/root/$NAME/file.list
 }
 
 func_setup_samsung()
 {
     NAME=$1
 
-    msb_func_set_feature_aosp $MBS_ROM_TYPE_SAMSUNG
-    msb_func_extract_files /mbs/root/$NAME /mbs/root/$NAME/file.list
+    mbs_func_set_feature_aosp $MBS_ROM_TYPE_SAMSUNG
+    mbs_func_extract_files /mbs/root/$NAME /mbs/root/$NAME/file.list
 
     # check bootanimation
     if [ -f $DATA_DIR/local/bootanimation.zip ] || [ -f $SYSTEM_DIR/media/bootanimation.zip ]; then
