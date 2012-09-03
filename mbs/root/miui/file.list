@@ -5,3 +5,4 @@
 /ueventd.rc /
 /ueventd.smdk4210.rc
 /sbin/redbend_ua
+/init

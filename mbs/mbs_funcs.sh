@@ -71,14 +71,15 @@ mbs_func_check_partition()
 
 mbs_func_detect_rom_vendor()
 {
-    if [ -f $rom_sys_path/framework/twframework.jar ]; then
-        if [ -f $rom_sys_path/framework/framework-miui.jar ]; then
+    SYS_PATH=$1
+    if [ -f $SYS_PATH/framework/twframework.jar ]; then
+        if [ -f $SYS_PATH/framework/framework-miui.jar ]; then
             echo miui
         else
             echo samsung
         fi
     else
-        SDK_VER=`grep ro\.build\.version\.sdk $rom_sys_path/build.prop | cut -d'=' -f2`
+        SDK_VER=`grep ro\.build\.version\.sdk $SYS_PATH/build.prop | cut -d'=' -f2`
         if [ "$SDK_VER" = '16' ]; then
             echo aosp-jb
         else

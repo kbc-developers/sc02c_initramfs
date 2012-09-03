@@ -1,5 +1,8 @@
 #!/sbin/busybox sh
 
+. /mbs/mbs_const
+. /mbs/mbs_funcs.sh
+
 rom_sys_path=/mbs/mnt/system
 rom_data_path=/mbs/mnt/data
 
@@ -14,24 +17,8 @@ boot_date=`date`
 echo "boot start single mode: $boot_date" > $MBS_LOG
 
 # check rom vendor
-if [ -f $rom_sys_path/framework/twframework.jar ]; then
-    if [ -f $rom_sys_path/framework/framework-miui.jar ]; then
-        echo ROM is miui >> $MBS_LOG
-        sh /mbs/setup_rom.sh miui $rom_sys_path $rom_data_path
-    else
-    	echo ROM is samsung >> $MBS_LOG
-        sh /mbs/setup_rom.sh samsung $rom_sys_path $rom_data_path
-    fi
-else
-    SDK_VER=`grep ro\.build\.version\.sdk $rom_sys_path/build.prop | cut -d'=' -f2`
-    if [ "$SDK_VER" = '16' ]; then
-    	echo ROM is aosp-jb >> $MBS_LOG
-        sh /mbs/setup_rom.sh aosp-jb $rom_sys_path $rom_data_path
-    else
-    	echo ROM is aosp-ics >> $MBS_LOG
-        sh /mbs/setup_rom.sh aosp-ics $rom_sys_path $rom_data_path
-    fi
-fi
+$rom_vender=`mbs_func_detect_rom_vendor $rom_sys_path`
+sh /mbs/setup_rom.sh $rom_vender $rom_sys_path $rom_data_path
 
 # Set TweakGS2 properties
 sh /mbs/setup_tgs2.sh $rom_data_path
