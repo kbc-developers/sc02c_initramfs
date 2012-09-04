@@ -30,24 +30,24 @@ sed -n "$n,${m}p" $INIT_RC_SRC >> $INIT_RC_DST
 echo  "  
 #------------------------------
     mkdir /xdata
-    exec check_filesystem $DEV_BLOCK_DATA ext4
-    mount ext4 $DEV_BLOCK_DATA /xdata nosuid nodev noatime wait crypt discard,noauto_da_alloc
+    exec check_filesystem $MBS_BLKDEV_DATA ext4
+    mount ext4 $MBS_BLKDEV_DATA /xdata nosuid nodev noatime wait crypt discard,noauto_da_alloc
     chown system system /xdata
     chmod 0775 /xdata
 
-	mkdir /share
+    mkdir /share
     chown system system /share
     chmod 0771 /share
  " >> $INIT_RC_DST
 
 for i in $LOOP_CNT; do
-	mnt_base=/mbs/mnt/rom${i}
-	mnt_dir=$mnt_base/data_dev
-	#echo "#-- rom$i data mount & link to /share/data$i"  >> $INIT_RC_DST 
-	eval rom_data_part=$"rom_data_part_"$i
-	eval ROM_DATA_PATH=$"ROM_DATA_PATH_"$i
+    mnt_base=/mbs/mnt/rom${i}
+    mnt_dir=$mnt_base/data_dev
+    #echo "#-- rom$i data mount & link to /share/data$i"  >> $INIT_RC_DST 
+    eval rom_data_part=$"rom_data_part_"$i
+    eval ROM_DATA_PATH=$"ROM_DATA_PATH_"$i
 
-	if [ ! -z "$rom_data_part" ]; then
+    if [ ! -z "$rom_data_part" ]; then
 #--------------------
 
 echo " #---rom${i}.data
@@ -60,7 +60,7 @@ echo " #---rom${i}.data
 #------------------------------
  " >> $INIT_RC_DST
 #--------------------
-	fi
+    fi
 done
 
 echo "#-- active rom data link to /data

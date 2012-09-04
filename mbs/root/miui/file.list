@@ -1,0 +1,8 @@
+/default.prop
+/init.rc.sed.sed
+/init.smdk4210.rc.sed
+/init.smdk4210.usb.rc
+/ueventd.rc /
+/ueventd.smdk4210.rc
+/sbin/redbend_ua
+/init

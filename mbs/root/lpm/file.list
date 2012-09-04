@@ -1,0 +1,7 @@
+/default.prop
+/lpm.rc
+/ueventd.rc
+/eventd.smdk4210.rc
+/init
+/charger
+/sbin/adbd
