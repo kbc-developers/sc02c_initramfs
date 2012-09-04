@@ -9,6 +9,10 @@ BOOT_MODE=$1
 
 func_init_single()
 {
+    mkdir /system
+    mkdir /data
+    chmod 0771 /data
+
     SYS_PART=`echo $MBS_BLKDEV_FACTORYFS | sed -e 's/\//\\\\\\//g'`
     sed -e "s/@MBS_MOUNT_SYSTEM/mount ext4 $SYS_PART \/system wait rw/g" /init.rc.sed > /init.rc
     rm /init.rc.sed
@@ -16,15 +20,17 @@ func_init_single()
 
 func_init_multi()
 {
+    mkdir /xdata
+
     # create stat dir
-    mkdir /mbs/stat
+    mkdir $MBS_STAT_PATH
 
     # parse mbs.conf
     mkdir -p /mbs/mnt/data
     mount -t ext4 $MBS_BLKDEV_DATA /mbs/mnt/data
 
     # move errmsg
-    mv /mbs/mnt/data/mbs.err /mbs/stat/mbs.err
+    mv /mbs/mnt/data/mbs.err $MBS_STAT_PATH/mbs.err
 
     if [ ! -s $MBS_CONF ]; then
         mbs_func_generate_conf $MBS_CONF
@@ -72,7 +78,7 @@ func_init_multi()
 
         echo "/system        ext4        $rom_system_part" >> /misc/recovery.fstab
 
-        echo $rom_system_part > /mbs/stat/system_device
+        echo $rom_system_part > $MBS_STAT_PATH/system_device
     else
         if [ "$rom_system_part" = "$MBS_BLKDEV_SDCARD" ] || [ "$rom_system_part" = "$MBS_BLKDEV_EMMC1" ]; then
             PARTITION_FORMAT=vfat
@@ -85,7 +91,7 @@ func_init_multi()
     rm /init.rc.sed
 
     echo "/system        ext4        /mbs/mnt/sys_img$rom_system_img        loop" >> /misc/recovery.fstab
-    echo /mbs/mnt/sys_img$rom_system_img > /mbs/stat/system_device
+    echo /mbs/mnt/sys_img$rom_system_img > $MBS_STAT_PATH/system_device
     fi
 
     # add data_dev entry
@@ -119,7 +125,7 @@ func_init_multi()
     fi
 
     #put current boot rom nuber info
-    echo $rom_id > /mbs/stat/bootrom
+    echo $rom_id > $MBS_STAT_PATH/bootrom
 }
 
 
