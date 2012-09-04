@@ -17,8 +17,9 @@ fi
 # extract block device files
 tar xf /misc/dev.tar
 
-#foce single boot mode
-BOOT_MODE=1
+#Single or Multi boot mode flag
+# this will be changed by kernel build script
+BOOT_MODE=0
 
 RECOVERY_MODE=`mbs_func_get_recovery_mode`
 
