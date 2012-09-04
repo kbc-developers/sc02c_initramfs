@@ -328,8 +328,8 @@ func_vender_init()
 #------------------------------------------------------
 func_put_rom_id()
 {
-    mkdir /mbs/stat
-    echo $rom_id > /mbs/stat/bootrom
+    mkdir -p $MBS_STAT_PATH
+    echo $rom_id > $MBS_STAT_PATH/bootrom
 }
 
 

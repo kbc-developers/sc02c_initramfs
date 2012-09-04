@@ -9,40 +9,35 @@ export PATH=/sbin
 LOW_POWER_MODE=`mbs_func_get_low_power_mode`
 
 if [ "$LOW_POWER_MODE" = '1' ]; then
-  sh /mbs/init.lpm.sh
-  export PATH=$PATH_
-  exec /init
+    sh /mbs/init.lpm.sh
+    export PATH=$PATH_
+    exec /init
 fi
 
 # extract block device files
 tar xf /misc/dev.tar
 
+#foce single boot mode
+BOOT_MODE=1
+
 RECOVERY_MODE=`mbs_func_get_recovery_mode`
 
-#foce single boot mode
-IS_MODE=1
-
-#check multi mode
-if [ "$IS_MODE" = '0' ]; then
-  #single boot mode
-  mkdir /system
-  mkdir /data
-  chmod 0771 /data
-  NORMAL_SH=/mbs/init.normal.sh
-else
-  #mbs mode
-  mkdir /xdata
-  NORMAL_SH=/mbs/init.normal.multi.sh
-
-  cp /mbs/swrom /sbin
-fi
-
-#check boot mode
 if [ "$RECOVERY_MODE" = '1' ]; then
-  # recovery mode
-  sh /mbs/init.recovery.sh $IS_MODE
+    # recovery mode
+    sh /mbs/init.recovery.sh $BOOT_MODE
 else
-  sh $NORMAL_SH
+    if [ "$BOOT_MODE" = "$MBS_BOOT_MODE_MULTI" ]; then
+        #mbs mode
+        mkdir /xdata
+        cp /mbs/swrom /sbin
+        sh /mbs/init.normal.multi.sh
+    else
+        #single boot mode
+        mkdir /system
+        mkdir /data
+        chmod 0771 /data
+        sh /mbs/init.normal.sh
+    fi
 fi
 
 # cleanup

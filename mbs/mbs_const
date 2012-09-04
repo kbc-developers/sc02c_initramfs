@@ -15,7 +15,7 @@ export readonly MBS_ROM_TYPE_SAMSUNG=0
 export readonly MBS_ROM_TYPE_AOSP=1
 
 # mbs
-#export readonly MBS_STAT_PATH=/mbs/stat
+export readonly MBS_STAT_PATH=/mbs/stat
 #export readonly MBS_DATA_PATH=/mbs/mnt/data
 #export readonly MBS_CONF=$MBS_DATA_PATH/mbs.conf
 #export readonly MBS_LAST_ERR=$MBS_DATA_PATH/mbs.err

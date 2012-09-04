@@ -1,11 +1,12 @@
 
 mbs_func_err_reboot()
 {
-    MSG=$1
+    MSG_=$1
+    KEEP_=$2
 
-    echo $MSG >> $MBS_LOG
-    echo $MSG > $ERR_MSG
-    if [ -z $2 ]; then
+    echo $MSG_ >> $MBS_LOG
+    echo $MSG_ > $ERR_MSG
+    if [ -z $KEEP_ ]; then
         mv $MBS_CONF $MBS_CONF.keep
     fi
     sync
@@ -18,43 +19,43 @@ mbs_func_err_reboot()
 
 mbs_func_set_feature_aosp()
 {
-    ROM_TYPE=$1
+    ROM_TYPE_=$1
 
     mount -t proc proc /proc
-    echo $ROM_TYPE > /proc/sys/kernel/feature_aosp
+    echo $ROM_TYPE_ > /proc/sys/kernel/feature_aosp
     umount /proc
 }
 
 mbs_func_extract_files()
 {
-    SRC_DIR=$1
-    LIST_FILE=$2
+    SRC_DIR_=$1
+    LIST_FILE_=$2
 
-    for FILE in `egrep -v '(^#|^$)' $LIST_FILE`; do
-        cp $SRC_DIR$FILE $FILE
-        echo "cp $SRC_DIR$FILE $FILE" >> $MBS_LOG
+    for FILE_ in `egrep -v '(^#|^$)' $LIST_FILE_`; do
+        cp $SRC_DIR_$FILE_ $FILE_
+        echo "cp $SRC_DIR_$FILE_ $FILE_" >> $MBS_LOG
     done
 }
 
 mbs_func_generate_conf()
 {
-    CONF=$1
+    CONF_=$1
 
-    echo "mbs.boot.rom=0" > $CONF
-    echo "mbs.rom0.system.part=$MBS_BLKDEV_FACTORYFS" >> $CONF
-    echo "mbs.rom0.data.part=$MBS_BLKDEV_DATA" >> $CONF
-    echo "mbs.rom0.data.path=/data0" >> $CONF
-    echo "mbs.rom1.system.part=$MBS_BLKDEV_HIDDEN" >> $CONF
-    echo "mbs.rom1.data.part=$MBS_BLKDEV_DATA" >> $CONF
-    echo "mbs.rom1.data.path=/data1" >> $CONF
+    echo "mbs.boot.rom=0" > $CONF_
+    echo "mbs.rom0.system.part=$MBS_BLKDEV_FACTORYFS" >> $CONF_
+    echo "mbs.rom0.data.part=$MBS_BLKDEV_DATA" >> $CONF_
+    echo "mbs.rom0.data.path=/data0" >> $CONF_
+    echo "mbs.rom1.system.part=$MBS_BLKDEV_HIDDEN" >> $CONF_
+    echo "mbs.rom1.data.part=$MBS_BLKDEV_DATA" >> $CONF_
+    echo "mbs.rom1.data.path=/data1" >> $CONF_
 }
 
 mbs_func_check_partition()
 {
-    PART=$1
-    IMG=$2
+    PART_=$1
+    IMG_=$2
 
-    case $PART in
+    case $PART_ in
         "$MBS_BLKDEV_ZIMAGE" )    return 0 ;;
         "$MBS_BLKDEV_FACTORYFS" ) return 0 ;;
         "$MBS_BLKDEV_DATA" )      return 0 ;;
@@ -66,7 +67,7 @@ mbs_func_check_partition()
         *) mbs_func_err_reboot "$1 is invalid part" ;;
     esac
 
-    if [ -z $IMG ]; then
+    if [ -z $IMG_ ]; then
         mbs_func_err_reboot "no img detect!"
     fi
 
@@ -75,17 +76,17 @@ mbs_func_check_partition()
 
 mbs_func_detect_rom_vendor()
 {
-    SYS_PATH=$1
+    SYS_PATH_=$1
 
-    if [ -f $SYS_PATH/framework/twframework.jar ]; then
-        if [ -f $SYS_PATH/framework/framework-miui.jar ]; then
+    if [ -f $SYS_PATH_/framework/twframework.jar ]; then
+        if [ -f $SYS_PATH_/framework/framework-miui.jar ]; then
             echo miui
         else
             echo samsung
         fi
     else
-        SDK_VER=`grep ro\.build\.version\.sdk $SYS_PATH/build.prop | cut -d'=' -f2`
-        if [ "$SDK_VER" = '16' ]; then
+        SDK_VER_=`grep ro\.build\.version\.sdk $SYS_PATH_/build.prop | cut -d'=' -f2`
+        if [ "$SDK_VER_" = '16' ]; then
             echo aosp-jb
         else
             echo aosp-ics
@@ -96,29 +97,25 @@ mbs_func_detect_rom_vendor()
 mbs_func_get_low_power_mode()
 {
     mount -t sysfs sysfs /sys
-    MODE=`cat /sys/class/power_supply/battery/batt_lp_charging`
+    MODE_=`cat /sys/class/power_supply/battery/batt_lp_charging`
     umount /sys
-    echo $MODE
+    echo $MODE_
 }
 
 mbs_func_get_recovery_mode()
 {
     mount -t proc proc /proc
-    MODE=`grep -c bootmode=2 /proc/cmdline`
+    MODE_=`grep -c bootmode=2 /proc/cmdline`
     umount /proc
-    echo $MODE
+    echo $MODE_
 }
-
 
 mbs_func_make_init_rc()
 {
-    # create init.smdk4210.rc
-    #escape
-    sys_part_sed=`echo $rom_sys_part | sed -e 's/\//\\\\\\//g'`
-    data_part_sed=`echo $rom_data_part | sed -e 's/\//\\\\\\//g'`
+    SYS_PART_=`echo $1 | sed -e 's/\//\\\\\\//g'`
+    DATA_PART_=`echo $2 | sed -e 's/\//\\\\\\//g'`
 
-    sed -e "s/@SYSTEM_DEV/$sys_part_sed/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$data_part_sed/g" | sed -e "s/@MBS_COMMENT/$1/g" > /init.smdk4210.rc
-    #mv /init.smdk4210.rc  $rom_data_path/init.smdk4210.rc
+    sed -e "s/@SYSTEM_DEV/$SYS_PART_/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$DATA_PART_/g" | sed -e "s/@MBS_COMMENT/$1/g" > /init.smdk4210.rc
     rm /init.smdk4210.rc.sed
 }
 
