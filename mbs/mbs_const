@@ -14,10 +14,20 @@ export readonly MBS_BLKDEV_EMMC3=/dev/block/mmcblk1p3
 export readonly MBS_ROM_TYPE_SAMSUNG=0
 export readonly MBS_ROM_TYPE_AOSP=1
 
-# mbs
-export readonly MBS_STAT_PATH=/mbs/stat
-#export readonly MBS_DATA_PATH=/mbs/mnt/data
-#export readonly MBS_CONF=$MBS_DATA_PATH/mbs.conf
-#export readonly MBS_LAST_ERR=$MBS_DATA_PATH/mbs.err
+# boot mode type
 export readonly MBS_BOOT_MODE_SINGLE=0
 export readonly MBS_BOOT_MODE_MULTI=1
+
+# mbs
+export readonly MBS_CTL_PATH=/mbs/mnt/ctl
+export readonly MBS_STAT_PATH=/mbs/stat
+export readonly MBS_DATA_PATH=/mbs/mnt/data
+export readonly MBS_CONF=$MBS_CTL_PATH/mbs.conf
+export readonly MBS_LOG_1="$MBS_CTL_PATH/mbs.old1.log"
+export readonly MBS_LOG_2="$MBS_CTL_PATH/mbs.old2.log"
+export readonly MBS_LOG=$MBS_CTL_PATH/mbs.log
+export readonly MBS_LAST_ERR=$MBS_CTL_PATH/mbs.err
+
+export readonly LOOP_CNT="0 1 2 3 4 5 6 7"
+export readonly INIT_RC_DST=/init.rc
+export readonly INIT_RC_SRC=/init.rc.sed

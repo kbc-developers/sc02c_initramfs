@@ -3,8 +3,6 @@
 . /mbs/mbs_const
 . /mbs/mbs_funcs.sh
 
-export MBS_CONF="/mbs/mnt/data/mbs.conf"
-
 BOOT_MODE=$1
 
 func_init_single()
@@ -21,16 +19,15 @@ func_init_single()
 func_init_multi()
 {
     mkdir /xdata
-
     # create stat dir
     mkdir $MBS_STAT_PATH
 
     # parse mbs.conf
-    mkdir -p /mbs/mnt/data
-    mount -t ext4 $MBS_BLKDEV_DATA /mbs/mnt/data
+    mkdir -p $MBS_CTL_PATH
+    mount -t ext4 $MBS_BLKDEV_DATA $MBS_CTL_PATH
 
     # move errmsg
-    mv /mbs/mnt/data/mbs.err $MBS_STAT_PATH/mbs.err
+    mv $MBS_LAST_ERR $MBS_STAT_PATH/mbs.err
 
     if [ ! -s $MBS_CONF ]; then
         mbs_func_generate_conf $MBS_CONF
@@ -49,7 +46,7 @@ func_init_multi()
     rom_data_img=`grep mbs\.rom$rom_id\.data\.img $MBS_CONF | cut -d'=' -f2`
     rom_data_path=`grep mbs\.rom$rom_id\.data\.path $MBS_CONF | cut -d'=' -f2`
 
-    umount /mbs/mnt/data
+    umount $MBS_CTL_PATH
 
     mbs_func_check_partition $rom_system_part $rom_system_img
     mbs_func_check_partition $rom_data_part $rom_data_img

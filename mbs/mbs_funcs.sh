@@ -1,3 +1,8 @@
+mbs_func_print_log()
+{
+    MSG_=$1
+    echo $MSG_ >> $MBS_LOG
+}
 
 mbs_func_err_reboot()
 {
@@ -33,7 +38,7 @@ mbs_func_extract_files()
 
     for FILE_ in `egrep -v '(^#|^$)' $LIST_FILE_`; do
         cp $SRC_DIR_$FILE_ $FILE_
-        echo "cp $SRC_DIR_$FILE_ $FILE_" >> $MBS_LOG
+        mbs_func_print_log "cp $SRC_DIR_$FILE_ $FILE_"
     done
 }
 
@@ -108,14 +113,5 @@ mbs_func_get_recovery_mode()
     MODE_=`grep -c bootmode=2 /proc/cmdline`
     umount /proc
     echo $MODE_
-}
-
-mbs_func_make_init_rc()
-{
-    SYS_PART_=`echo $1 | sed -e 's/\//\\\\\\//g'`
-    DATA_PART_=`echo $2 | sed -e 's/\//\\\\\\//g'`
-
-    sed -e "s/@SYSTEM_DEV/$SYS_PART_/g" /init.smdk4210.rc.sed | sed -e "s/@DATA_DEV/$DATA_PART_/g" | sed -e "s/@MBS_COMMENT/$1/g" > /init.smdk4210.rc
-    rm /init.smdk4210.rc.sed
 }
 
