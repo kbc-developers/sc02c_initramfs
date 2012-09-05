@@ -13,13 +13,6 @@ BOOT_MODE=$1
 mbs_func_init_log()
 {
     BOOT_MODE_=$1
-
-	export MBS_LOG=$MBS_CTL_PATH/mbs.log
-	export MBS_LOG_1="$MBS_CTL_PATH/mbs.old1.log"
-	export MBS_LOG_2="$MBS_CTL_PATH/mbs.old2.log"
-	export MBS_CONF="$MBS_CTL_PATH/mbs.conf"
-	export ERR_MSG="$MBS_CTL_PATH/mbs.err"
-
     #log backup----------------
     if [ -f $MBS_LOG_1 ]; then
         mv $MBS_LOG_1 $MBS_LOG_2
@@ -38,7 +31,7 @@ mbs_func_init_log()
 func_mbs_init()
 {
     #err staus clear (no check exist)
-    rm $ERR_MSG
+    rm $MBS_LAST_ERR
 
     #patation,path infomation init
     if [ ! -f $MBS_CONF ]; then
@@ -344,6 +337,7 @@ func_put_rom_id()
 #==============================================================================
 func_init_multi()
 {
+	mkdir /xdata
 	cp /mbs/swrom /sbin
 
 	func_mbs_init
@@ -369,7 +363,7 @@ func_init_single()
     chmod 0771 /data
 
     rom_sys_path=/mbs/mnt/system
-    rom_data_path=/mbs/mnt/data
+    rom_data_path=$MBS_DATA_PATH
     rom_sys_part=$MBS_BLKDEV_FACTORYFS
     rom_data_part=$MBS_BLKDEV_DATA
 
