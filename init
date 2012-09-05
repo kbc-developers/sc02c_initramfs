@@ -27,18 +27,8 @@ if [ "$RECOVERY_MODE" = '1' ]; then
     # recovery mode
     sh /mbs/init.recovery.sh $BOOT_MODE
 else
-    if [ "$BOOT_MODE" = "$MBS_BOOT_MODE_MULTI" ]; then
-        #mbs mode
-        mkdir /xdata
-        cp /mbs/swrom /sbin
-        sh /mbs/init.normal.multi.sh
-    else
-        #single boot mode
-        mkdir /system
-        mkdir /data
-        chmod 0771 /data
-        sh /mbs/init.normal.sh
-    fi
+    #normal boot mode
+    sh /mbs/init.normal.sh $BOOT_MODE
 fi
 
 # cleanup
