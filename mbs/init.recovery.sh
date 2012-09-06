@@ -46,6 +46,8 @@ func_init_multi()
     rom_data_img=`grep mbs\.rom$rom_id\.data\.img $MBS_CONF | cut -d'=' -f2`
     rom_data_path=`grep mbs\.rom$rom_id\.data\.path $MBS_CONF | cut -d'=' -f2`
 
+    mbs_func_get_labeles
+
     umount $MBS_CTL_PATH
 
     mbs_func_check_partition $rom_system_part $rom_system_img

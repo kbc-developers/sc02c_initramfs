@@ -115,3 +115,23 @@ mbs_func_get_recovery_mode()
     echo $MODE_
 }
 
+
+mbs_func_get_labeles()
+{
+    for i in $LOOP_CNT; do
+		rom_data_part_=`grep mbs\.rom$i\.data\.part $MBS_CONF | cut -d'=' -f2`
+		#rom_data_img_=`grep mbs\.rom$i\.data\.img $MBS_CONF | cut -d'=' -f2`
+		rom_data_path_=`grep mbs\.rom$i\.data\.path $MBS_CONF | cut -d'=' -f2`
+		rom_sys_part_=`grep mbs\.rom$i\.system\.part $MBS_CONF | cut -d'=' -f2`
+		#rom_sys_img_=`grep mbs\.rom$i\.system\.img $MBS_CONF | cut -d'=' -f2`
+		
+
+		if [ ! -z "$rom_data_part_" ] && [ ! -z "$rom_data_path_" ] && [ ! -z "$rom_sys_part_" ]; then
+			rom_label_=`grep mbs\.rom$i\.label $MBS_CONF | cut -d'=' -f2`
+			if [ -z "$rom_label_" ]; then
+				rom_label_="none"
+			fi
+			echo "$rom_label_" > $MBS_STAT_PATH/rom$i
+		fi
+    done
+}
