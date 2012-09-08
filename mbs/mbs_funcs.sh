@@ -47,8 +47,10 @@ mbs_func_generate_conf()
     CONF_=$1
 
     echo "mbs.boot.rom=0" > $CONF_
+    echo "mbs.rom0.label="--" >> $CONF_
     echo "mbs.rom0.system.part=$MBS_BLKDEV_FACTORYFS" >> $CONF_
     echo "mbs.rom0.data.part=$MBS_BLKDEV_DATA" >> $CONF_
+    echo "mbs.rom1.label="--"  >> $CONF_
     echo "mbs.rom0.data.path=/data0" >> $CONF_
     echo "mbs.rom1.system.part=$MBS_BLKDEV_HIDDEN" >> $CONF_
     echo "mbs.rom1.data.part=$MBS_BLKDEV_DATA" >> $CONF_
@@ -120,18 +122,15 @@ mbs_func_get_labeles()
 {
     for i in $LOOP_CNT; do
 		rom_data_part_=`grep mbs\.rom$i\.data\.part $MBS_CONF | cut -d'=' -f2`
-		#rom_data_img_=`grep mbs\.rom$i\.data\.img $MBS_CONF | cut -d'=' -f2`
 		rom_data_path_=`grep mbs\.rom$i\.data\.path $MBS_CONF | cut -d'=' -f2`
 		rom_sys_part_=`grep mbs\.rom$i\.system\.part $MBS_CONF | cut -d'=' -f2`
-		#rom_sys_img_=`grep mbs\.rom$i\.system\.img $MBS_CONF | cut -d'=' -f2`
-		
 
 		if [ ! -z "$rom_data_part_" ] && [ ! -z "$rom_data_path_" ] && [ ! -z "$rom_sys_part_" ]; then
 			rom_label_=`grep mbs\.rom$i\.label $MBS_CONF | cut -d'=' -f2`
 			if [ -z "$rom_label_" ]; then
 				rom_label_="none"
 			fi
-			echo "$rom_label_" > $MBS_STAT_PATH/rom$i
+			echo "$rom_label_" | sed -e s/"[\\/:*?\"<>|]"/./g > $MBS_STAT_PATH/rom$i
 		fi
     done
 }
