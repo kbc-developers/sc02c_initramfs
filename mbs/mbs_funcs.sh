@@ -47,10 +47,10 @@ mbs_func_generate_conf()
     CONF_=$1
 
     echo "mbs.boot.rom=0" > $CONF_
-    echo "mbs.rom0.label="--" >> $CONF_
+    echo "mbs.rom0.label=--" >> $CONF_
     echo "mbs.rom0.system.part=$MBS_BLKDEV_FACTORYFS" >> $CONF_
     echo "mbs.rom0.data.part=$MBS_BLKDEV_DATA" >> $CONF_
-    echo "mbs.rom1.label="--"  >> $CONF_
+    echo "mbs.rom1.label=--"  >> $CONF_
     echo "mbs.rom0.data.path=/data0" >> $CONF_
     echo "mbs.rom1.system.part=$MBS_BLKDEV_HIDDEN" >> $CONF_
     echo "mbs.rom1.data.part=$MBS_BLKDEV_DATA" >> $CONF_
