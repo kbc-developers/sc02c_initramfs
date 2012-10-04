@@ -32,6 +32,8 @@ on fs
     exec apply_system_policy /dev/block/mmcblk0p11 vfat
 
 on boot
+# Touchkey led timeout 3000 msec
+    write /sys/devices/virtual/misc/notification/led_timeout 3000
 
 # Permissions for mDNIe
     chown system media_rw /sys/class/mdnie/mdnie/mode
