@@ -23,6 +23,9 @@ on init
     setprop ro.build.product galaxys2
     setprop ro.product.board galaxys2
 
+    # Touchkey led timeout 3000 msec
+    write /sys/devices/virtual/misc/notification/led_timeout 3000
+
 on fs
     mount tmpfs tmpfs /tmp mode=0755    
     @MBS_MOUNT_SYSTEM
