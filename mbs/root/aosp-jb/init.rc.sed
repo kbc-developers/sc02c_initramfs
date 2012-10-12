@@ -48,6 +48,9 @@ loglevel 3
 # libemoji_docomo
     setprop ro.config.libemoji "libemoji_docomo.so"
 
+# void swichable pair
+    setprop ro.vold.switchablepair "/storage/sdcard0,/storage/sdcard1"
+
 # Create cgroup mount point for cpu accounting
     mkdir /acct
     mount cgroup none /acct cpuacct
