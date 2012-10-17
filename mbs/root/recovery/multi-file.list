@@ -1,4 +1,6 @@
 /default.prop
+/ueventd.rc
+/ueventd.smdk4210.rc
 /init.rc.sed
 /misc/recovery.fstab
 /sbin/recovery
