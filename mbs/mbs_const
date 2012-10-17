@@ -31,3 +31,7 @@ export readonly MBS_LAST_ERR=$MBS_CTL_PATH/mbs.err
 export readonly LOOP_CNT="0 1 2 3 4 5 6 7"
 export readonly INIT_RC_DST=/init.rc
 export readonly INIT_RC_SRC=/init.rc.sed
+
+#recovery theme
+export readonly MBS_MNT_SDCARD_PATH=/mbs/mnt/sdcard
+export readonly MBS_THEME_PATH=$MBS_MNT_SDCARD_PATH/clockworkmod/theme

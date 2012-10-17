@@ -5,6 +5,18 @@
 
 BOOT_MODE=$1
 
+func_init_theme()
+{
+	mkdir -p $MBS_MNT_SDCARD_PATH
+	mount -t vfat $MBS_BLKDEV_SDCARD $MBS_MNT_SDCARD_PATH
+
+	if [ -d $MBS_THEME_PATH ]; then
+		cp -r $MBS_THEME_PATH/* /res/
+	fi
+
+	umount $MBS_MNT_SDCARD_PATH
+}
+
 func_init_single()
 {
     mkdir /system
@@ -127,6 +139,8 @@ func_init_multi()
     echo $rom_id > $MBS_STAT_PATH/bootrom
 }
 
+
+func_init_theme
 
 if [ "$BOOT_MODE" = "$MBS_BOOT_MODE_MULTI" ]; then
     sh /mbs/setup_rom.sh recovery-multi
