@@ -1,3 +1,5 @@
 /default.prop
 /init.rc.sed
+/ueventd.rc
+/ueventd.smdk4210.rc
 /init

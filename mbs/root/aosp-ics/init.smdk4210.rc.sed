@@ -186,6 +186,7 @@ on post-fs-data
 # Permissions for input devices
     chown system radio /sys/devices/virtual/sec/sec_key/sec_key_pressed
 
+    chown system radio /sys/devices/virtual/sec/sec_touchkey/force_disable
     chown system radio /sys/devices/virtual/sec/sec_touchkey/enable_disable
     chown system radio /sys/devices/virtual/sec/sec_touchkey/recommended_version
     chown system radio /sys/devices/virtual/sec/sec_touchkey/touch_sensitivity
@@ -238,6 +239,8 @@ on post-fs-data
 # Vibetonz
     chmod 0660 /dev/tspdrv
     chown root shell /dev/tspdrv
+    chmod 0660 /sys/vibrator/pwm_val
+    chown system system /sys/vibrator/pwm_val
 
 # Permissions for LCD
     chown system radio /sys/class/lcd/panel/lcd_power
