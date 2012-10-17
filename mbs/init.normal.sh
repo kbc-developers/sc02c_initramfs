@@ -390,6 +390,8 @@ else
     func_init_single
 fi
 
+mbs_func_cleanup_sbin
+
 mbs_func_print_log "end of init"
 umount $MBS_CTL_PATH
 exit 0

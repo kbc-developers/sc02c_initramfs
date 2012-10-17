@@ -117,7 +117,6 @@ mbs_func_get_recovery_mode()
     echo $MODE_
 }
 
-
 mbs_func_get_labeles()
 {
     for i in $LOOP_CNT; do
@@ -134,3 +133,19 @@ mbs_func_get_labeles()
 		fi
     done
 }
+
+mbs_func_cleanup_sbin()
+{
+    rm /sbin/dedupe
+    rm /sbin/dump_image
+    rm /sbin/edify
+    rm /sbin/erase_image
+    rm /sbin/flash_image
+    rm /sbin/getprop
+    rm /sbin/minizip
+    rm /sbin/nandroid
+    rm /sbin/setprop
+    rm /sbin/unyaffs
+    rm /sbin/volume
+}
+
