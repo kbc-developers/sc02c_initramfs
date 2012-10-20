@@ -4,28 +4,28 @@ PROP_PATH=$1/tweakgs2.prop
 
 USB_CONFIG=`grep ro\.sys\.usb\.config $PROP_PATH | cut -d'=' -f2`
 if [ -n "$USB_CONFIG" ]; then
-    setprop persist.sys.usb.config $USB_CONFIG
+    echo persist.sys.usb.config=$USB_CONFIG >> /default.prop
 else
-    setprop persist.sys.usb.config mtp,adb
+    echo persist.sys.usb.config=mtp,adb >> /default.prop
 fi
 
 BOOT_SND=`grep audioflinger\.bootsnd $PROP_PATH | cut -d'=' -f2`
 if [ "$BOOT_SND" = '1' ]; then
-    setprop audioflinger.bootsnd 1
+    echo audioflinger.bootsnd=1 >> /default.prop
 else
-    setprop audioflinger.bootsnd 0
+    echo audioflinger.bootsnd=0 >> /default.prop
 fi
 
 CAMERA_SND=`grep ro\.camera\.sound\.forced $PROP_PATH | cut -d'=' -f2`
 if [ "$CAMERA_SND" = '1' ]; then
-    setprop ro.camera.sound.forced 1
+    echo ro.camera.sound.forced=1 >> /default.prop
 else
-    setprop ro.camera.sound.forced 0
+    echo ro.camera.sound.forced=0 >> /default.prop
 fi
 
 LCD_DENSITY=`grep ro\.sf\.lcd_density $PROP_PATH | cut -d'=' -f2`
 if [ -n "$LCD_DENSITY" ]; then
-    setprop ro.sf.lcd_density $LCD_DENSITY
+    echo ro.sf.lcd_density=$LCD_DENSITY >> /default.prop
 fi
 
 LOGGER=`grep ro\.tgs2\.logger $PROP_PATH | cut -d'=' -f2`
@@ -50,13 +50,13 @@ fi
 
 MUSIC_VOL_STEPS=`grep ro\.tweak\.music_vol_steps $PROP_PATH | cut -d'=' -f2`
 if [ -n "$MUSIC_VOL_STEPS" ]; then
-    setprop ro.tweak.music_vol_steps $MUSIC_VOL_STEPS
+    echo ro.tweak.music_vol_steps=$MUSIC_VOL_STEPS >> /default.prop
 fi
 
 SCROLLING_CACHE=`grep ro\.tweak\.scrolling_cache $PROP_PATH | cut -d'=' -f2`
 if [ "$SCROLLING_CACHE" = '1' ]; then
-    setprop ro.tweak.scrolling_cache 1
+    echo ro.tweak.scrolling_cache=1 >> /default.prop
 else
-    setprop ro.tweak.scrolling_cache 0
+    echo ro.tweak.scrolling_cache=0 >> /default.prop
 fi
 
