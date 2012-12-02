@@ -2,7 +2,7 @@
 
 export PATH=/system/bin:/system/xbin
 
-PROP_PATH=/data/tweakgnt.prop
+PROP_PATH=/data/tweakgs2.prop
 
 BOOT_SND=`grep audioflinger\.bootsnd $PROP_PATH | cut -d'=' -f2`
 if [ "$BOOT_SND" = '1' ]; then
