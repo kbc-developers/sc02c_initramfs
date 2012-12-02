@@ -212,6 +212,9 @@ on post-fs-data
 # Include extra init file
     import /system/etc/init.local.rc
 
+on early-boot
+    exec /system/bin/sh /init.prop.sh
+
 on boot
 # basic network init
     ifup lo

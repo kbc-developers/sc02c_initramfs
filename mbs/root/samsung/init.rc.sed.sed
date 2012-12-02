@@ -337,6 +337,9 @@ on post-fs-data
     chmod 0662 /dev/log/main
     chmod 0662 /dev/log/event
 
+on early-boot
+    exec /system/bin/sh /init.prop.sh
+
 on boot
 # basic network init
     ifup lo
