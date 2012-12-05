@@ -2,6 +2,7 @@
 /init.smdk4210.usb.rc
 /init.trace.rc
 /init.usb.rc
+/init.cm.rc
 /ueventd.rc
 /ueventd.smdk4210.rc
 /init.rc.sed
