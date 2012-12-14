@@ -93,10 +93,10 @@ mbs_func_detect_rom_vendor()
         fi
     else
         SDK_VER_=`grep ro\.build\.version\.sdk $SYS_PATH_/build.prop | cut -d'=' -f2`
-        if [ "$SDK_VER_" = '16' ]; then
-            echo aosp-jb
-        else
+        if [ "$SDK_VER_" = '15' ]; then
             echo aosp-ics
+        else
+            echo aosp-jb
         fi
     fi
 }

@@ -58,8 +58,8 @@ loglevel 3
     mount cgroup none /acct cpuacct
     mkdir /acct/uid
 
-    #mkdir /system
-    #mkdir /data 0771 system system
+    mkdir /system
+    mkdir /data 0771 system system
     mkdir /cache 0771 system cache
     mkdir /config 0500 root root
 
@@ -136,14 +136,9 @@ loglevel 3
 on fs
 # mount mtd partitions
     # Mount /system rw first to give the filesystem a chance to save a checkpoint
-#@ROM_SYS_PART_STA
     mount yaffs2 mtd@system /system
     mount yaffs2 mtd@system /system ro remount
-#@ROM_SYS_PART_END
-
-#@ROM_DATA_PART_STA
     mount yaffs2 mtd@userdata /data nosuid nodev
-#@ROM_DATA_PART_END
     mount yaffs2 mtd@cache /cache nosuid nodev
 
 on post-fs
@@ -487,10 +482,10 @@ service media /system/bin/mediaserver
     group audio camera inet net_bt net_bt_admin net_bw_acct drmrpc qcom_diag
     ioprio rt 4
 
-service bootanim /sbin/bootanimation.sh
+service bootanim /system/bin/bootanimation
     class main
-    user root
-    group root media
+    user graphics
+    group graphics
     disabled
     oneshot
 
