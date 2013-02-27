@@ -5,12 +5,14 @@ on init
     export PATH /sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin
     export ANDROID_ROOT /system
     export ANDROID_DATA /data
+    export ANDROID_CACHE /cache
+    export SECONDARY_STORAGE /external_sd
     export EXTERNAL_STORAGE /sdcard
 
     symlink /misc /etc
 
     mkdir /sdcard
-    mkdir /emmc
+    mkdir /external_sd
     mkdir /usbdisk
     mkdir /system
     mkdir /data
@@ -25,14 +27,6 @@ on init
 
     # Touchkey led timeout 3000 msec
     write /sys/devices/virtual/misc/notification/led_timeout 3000
-
-on fs
-    mount tmpfs tmpfs /tmp mode=0755    
-    @MBS_MOUNT_SYSTEM
-    mount ext4 /dev/block/mmcblk0p7 /cache nosuid nodev noatime wait
-
-    # verfiy filesystem (UMS)
-    exec apply_system_policy /dev/block/mmcblk0p11 vfat
 
 on boot
 # Touchkey led timeout 3000 msec
