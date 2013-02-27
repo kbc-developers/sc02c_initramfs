@@ -37,7 +37,7 @@ mbs_func_extract_files()
     LIST_FILE_=$2
 
     for FILE_ in `egrep -v '(^#|^$)' $LIST_FILE_`; do
-        cp $SRC_DIR_$FILE_ $FILE_
+        cp -a $SRC_DIR_$FILE_ $FILE_
         mbs_func_print_log "cp $SRC_DIR_$FILE_ $FILE_"
     done
 }

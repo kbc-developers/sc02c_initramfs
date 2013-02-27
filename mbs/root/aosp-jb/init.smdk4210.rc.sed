@@ -329,35 +329,44 @@ on boot
     setprop status.battery.level_raw  50
     setprop status.battery.level_scale 9
 
+# For RIL
+service cpboot-daemon /sbin/cbd -d -p 8
+    class main
+    user root
+    group radio cache inet misc audio sdcard_rw log sdcard_r
+
 service mdnsd /system/bin/mdnsd
 	class main
-        user mdnsr
-        group inet net_raw
-        socket mdnsd stream 0660 mdnsr inet
-        disabled
-        oneshot
+    user mdnsr
+    group inet net_raw
+    socket mdnsd stream 0660 mdnsr inet
+    disabled
+    oneshot
 
 service p2p_supplicant /system/bin/wpa_supplicant \
-    -Dnl80211 -iwlan0 -puse_p2p_group_interface=1 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin 
-    # we will start as root and wpa_supplicant will switch to user wifi
-    # after setting up the capabilities required for WEXT
-    # user wifi
-    # group wifi inet keystore
+        -iwlan0 -Dnl80211 -c/data/misc/wifi/wpa_supplicant.conf -N \
+        -ip2p0 -Dnl80211 -c/data/misc/wifi/p2p_supplicant.conf -e/data/misc/wifi/entropy.bin \
+        -puse_p2p_group_interface=1
+    #   we will start as root and wpa_supplicant will switch to user wifi
+    #   after setting up the capabilities required for WEXT
+    #   user wifi
+    #   group wifi inet keystore
     class main
     socket wpa_wlan0 dgram 660 wifi wifi
     disabled
     oneshot
 
 service wpa_supplicant /system/bin/wpa_supplicant \
-	-Dnl80211 -iwlan0 -puse_p2p_group_interface=1 -c/data/misc/wifi/wpa_supplicant.conf -e/data/misc/wifi/entropy.bin
-    # we will start as root and wpa_supplicant will switch to user wifi
-    # after setting up the capabilities required for WEXT
-    # user wifi
-    # group wifi inet keystore
-	class main
-	socket wpa_wlan0 dgram 660 wifi wifi
-	disabled
-	oneshot
+        -Dnl80211 -iwlan0 -e/data/misc/wifi/entropy.bin \
+        -c/data/misc/wifi/wpa_supplicant.conf
+    #   we will start as root and wpa_supplicant will switch to user wifi
+    #   after setting up the capabilities required for WEXT
+    #   user wifi
+    #   group wifi inet keystore
+    class main
+    socket wpa_wlan0 dgram 660 wifi wifi
+    disabled
+    oneshot
 
 service dhcpcd_wlan0 /system/bin/dhcpcd -ABKL
     class main
@@ -369,6 +378,11 @@ service dhcpcd_p2p /system/bin/dhcpcd -aABKL
     disabled
     oneshot
 
+service dhcpcd_bnep0 /system/bin/dhcpcd -ABKL
+	class main
+	disabled
+	oneshot
+
 service iprenew_wlan0 /system/bin/dhcpcd -n
     class main
     disabled
@@ -379,18 +393,17 @@ service iprenew_p2p /system/bin/dhcpcd -n
     disabled
     oneshot
 
+service iprenew_bnep0 /system/bin/dhcpcd -n
+	class main
+	disabled
+	oneshot
+
 # bluetooth mac address
 service bdaddr /system/bin/bdaddr_read
     class main
     user root
     disabled
     oneshot
-
-# TVout
-service TvoutService_C /system/bin/bintvoutservice
-     class main
-     user system
-     group graphics 
      
 # bugreport is triggered by holding down volume down, volume up and power
 service bugreport /system/bin/bugmailer.sh -v

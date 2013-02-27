@@ -31,7 +31,7 @@ sysclktz 0
 loglevel 3
 
 # setup the global environment
-    export PATH /sbin:/vendor/bin:/system/sbin:/system/bin:/system/xbin
+    export PATH /sbin:/vendor/bin:/system/bin:/system/xbin:/system/sbin
     export LD_LIBRARY_PATH /vendor/lib:/system/lib
     export ANDROID_BOOTLOGO 1
     export ANDROID_ROOT /system
@@ -315,6 +315,8 @@ on boot
     chown system system /sys/devices/system/cpu/cpufreq/interactive/boostpulse
     chown system system /sys/devices/system/cpu/cpufreq/interactive/input_boost
     chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/input_boost
+    chown system system /sys/devices/system/cpu/cpufreq/interactive/boostpulse_duration
+    chmod 0660 /sys/devices/system/cpu/cpufreq/interactive/boostpulse_duration
 
     # Assume SMP uses shared cpufreq policy for all CPUs
     chown system system /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
